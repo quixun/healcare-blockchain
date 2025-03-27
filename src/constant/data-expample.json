@@ -1,0 +1,100 @@
+{
+    "patients": [
+        {
+            "patientId": "patient-001",
+            "personalInfo": {
+                "fullName": "John Doe",
+                "dateOfBirth": "1990-05-15",
+                "gender": "Male",
+                "address": "123 Blockchain St, Crypto City",
+                "contact": "+1234567890"
+            },
+            "medicalHistory": [
+                {
+                    "recordId": "rec-001",
+                    "date": "2025-03-15",
+                    "doctor": "Dr. Jane Smith",
+                    "diagnosis": "Hypertension",
+                    "treatment": "Medication: Lisinopril",
+                    "notes": "Blood pressure needs monitoring",
+                    "attachments": [
+                        "ipfs://Qm123abc456xyz"
+                    ]
+                }
+            ],
+            "insuranceDetails": {
+                "provider": "Crypto Health Insurance",
+                "policyNumber": "CH123456789",
+                "coverage": [
+                    "General Checkup",
+                    "Medication"
+                ],
+                "expiryDate": "2026-12-31"
+            },
+            "consent": {
+                "dataSharing": true,
+                "allowedProviders": [
+                    "0xabc123...",
+                    "0xdef456..."
+                ]
+            },
+            "transactions": [
+                {
+                    "txHash": "0xabc123...",
+                    "date": "2025-03-15",
+                    "amount": "0.05",
+                    "currency": "ETH",
+                    "purpose": "Consultation Fee"
+                }
+            ]
+        },
+        {
+            "patientId": "patient-002",
+            "personalInfo": {
+                "fullName": "Jane Doe",
+                "dateOfBirth": "1985-09-23",
+                "gender": "Female",
+                "address": "456 Ethereum Ave, Block City",
+                "contact": "+9876543210"
+            },
+            "medicalHistory": [
+                {
+                    "recordId": "rec-003",
+                    "date": "2025-02-20",
+                    "doctor": "Dr. Alice Brown",
+                    "diagnosis": "Migraine",
+                    "treatment": "Pain relievers, Lifestyle changes",
+                    "notes": "Monitor stress levels",
+                    "attachments": [
+                        "ipfs://Qm987xyz654abc"
+                    ]
+                }
+            ],
+            "insuranceDetails": {
+                "provider": "Decentralized Health Co.",
+                "policyNumber": "DH987654321",
+                "coverage": [
+                    "Emergency Care",
+                    "Prescription Drugs"
+                ],
+                "expiryDate": "2027-01-15"
+            },
+            "consent": {
+                "dataSharing": false,
+                "allowedProviders": [
+                    "0x123abc...",
+                    "0x456def..."
+                ]
+            },
+            "transactions": [
+                {
+                    "txHash": "0xdef456...",
+                    "date": "2025-02-20",
+                    "amount": "0.03",
+                    "currency": "ETH",
+                    "purpose": "Specialist Fee"
+                }
+            ]
+        }
+    ]
+}
