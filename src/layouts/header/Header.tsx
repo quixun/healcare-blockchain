@@ -4,11 +4,12 @@ import { Outlet, useNavigate } from "react-router";
 import { logout } from "../../features/account/accountSlice";
 import { useAppSelector } from "../../features/hooks";
 import { RootState } from "../../features/store";
-import { SquareUserRound, History, Banknote, ImageUp } from "lucide-react";
+import { SquareUserRound, History, Banknote, ImageUp, ListVideo } from "lucide-react";
 import { motion } from "motion/react";
 
 const navItems = [
   { label: "Tải ảnh lên", icon: <ImageUp />, path: "/transfer-image" },
+  { label: "Tất cả ảnh", icon: <ListVideo />, path: "/image-list" },
   { label: "Chuyển tiền", icon: <Banknote />, path: "/transfer" },
   { label: "Lịch sử chuyển tiền", icon: <History />, path: "/transactions" },
   { label: "Thông tin cá nhân", icon: <SquareUserRound />, path: "/" },
@@ -41,7 +42,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-blue-600 fixed top-0 w-full text-white py-4 px-6 shadow-md flex justify-between items-center">
+      <header className="bg-blue-600 z-50 fixed top-0 w-full text-white py-4 px-6 shadow-md flex justify-between items-center">
         <h1
           className="text-xl font-bold cursor-pointer"
           onClick={() => navigate("/")}

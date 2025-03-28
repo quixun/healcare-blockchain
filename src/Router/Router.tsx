@@ -6,6 +6,7 @@ import Header from "../layouts/header/Header";
 import Transfer from "../components/transfer/Transfer";
 import Transactions from "../components/transactions";
 import ImageUploadPage from "../components/transfer/transfer-image";
+import PublicCIDList from "../components/List/image-list";
 
 const Router = () => {
   return (
@@ -18,6 +19,7 @@ const Router = () => {
             <Route path="transfer" element={<Transfer />} />
             <Route path="transactions" element={<Transactions />} />
             <Route path="transfer-image" element={<ImageUploadPage />} />
+            <Route path="image-list" element={<PublicCIDList />} />
           </Route>
         </Route>
       </Routes>
