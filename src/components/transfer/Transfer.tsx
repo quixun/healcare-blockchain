@@ -37,12 +37,6 @@ const Transfer: React.FC = () => {
         setMessage("Địa chỉ ví không hợp lệ.");
         return;
       }
-
-      if (isNaN(Number(amount)) || Number(amount) <= 0) {
-        setMessage("Số tiền không hợp lệ.");
-        return;
-      }
-
       // Validate amount: must be a positive number greater than 0
       if (!/^\d*\.?\d+$/.test(amount) || parseFloat(amount) <= 0) {
         setMessage("Số tiền không hợp lệ. Vui lòng nhập số dương.");
