@@ -4,12 +4,13 @@ import { Outlet, useNavigate } from "react-router";
 import { logout } from "../../features/account/accountSlice";
 import { useAppSelector } from "../../features/hooks";
 import { RootState } from "../../features/store";
-import { SquareUserRound, History, Banknote, ImageUp } from "lucide-react";
+import { SquareUserRound, History, Banknote, ImageUp, Bot } from "lucide-react";
 import { motion } from "motion/react";
 
 const navItems = [
   { label: "Tải ảnh lên", icon: <ImageUp />, path: "/transfer-image" },
   { label: "Chuyển tiền", icon: <Banknote />, path: "/transfer" },
+  { label: "Trò chuyện với bác sĩ", icon: <Bot />, path: "/chat-ai" },
   { label: "Lịch sử chuyển tiền", icon: <History />, path: "/transactions" },
   { label: "Thông tin cá nhân", icon: <SquareUserRound />, path: "/" },
 ];

@@ -10,7 +10,7 @@ class Web3Service {
 
   // Hàm khởi tạo Singleton, nếu đã tồn tại instance thì trả về instance cũ
   public static getInstance(
-    providerUrl = "http://127.0.0.1:7545"
+    providerUrl = import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL
   ): Web3Service {
     if (!Web3Service.instance) {
       Web3Service.instance = new Web3Service(providerUrl);
