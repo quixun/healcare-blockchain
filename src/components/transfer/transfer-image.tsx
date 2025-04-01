@@ -79,7 +79,7 @@ const ImageUploadPage: React.FC = () => {
     }
   };
 
-  const fetchUploadedImages = useCallback(async () => {
+ const fetchUploadedImages = useCallback(async () => {
     try {
       if (!address) return;
 
@@ -145,7 +145,7 @@ const ImageUploadPage: React.FC = () => {
           {loading ? "Uploading..." : "Upload and Save"}
         </button>
       </div>
-      <div className="overflow-y-auto max-h-[calc(100vh-5rem)] pr-4">
+      <div className="overflow-y-auto scrollbar-hide max-h-[calc(100vh-5rem)] pr-4">
         <h2 className="text-2xl font-bold mb-4">Uploaded Images</h2>
         <div className="space-y-4">
           {currentImages.length > 0 ? (

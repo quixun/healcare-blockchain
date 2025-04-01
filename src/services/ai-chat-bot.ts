@@ -1,4 +1,4 @@
-import { AIMessage } from "../components/chat/chat-ai";
+import { AIMessage } from "../components/chat/AIChatScreen";
 
 export const fetchAIResponse = async (userMessages: AIMessage[]) => {
   try {
@@ -11,8 +11,7 @@ export const fetchAIResponse = async (userMessages: AIMessage[]) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "openai/gpt-4o-2024-11-20",
-          max_tokens: 500,
+          model: "google/gemini-2.5-pro-exp-03-25:free",
           messages: userMessages.map((msg) => ({
             role: "user",
             content: msg.type === "text" ? msg.text : msg.image_url?.url,
@@ -25,9 +24,10 @@ export const fetchAIResponse = async (userMessages: AIMessage[]) => {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json();    
     return data;
-  } catch {
+  } catch (error) {
+    console.error("Error fetching AI response:", error);
     return null;
   }
 };

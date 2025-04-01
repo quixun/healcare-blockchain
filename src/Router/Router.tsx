@@ -7,6 +7,7 @@ import Transfer from "../components/transfer/Transfer";
 import Transactions from "../components/transactions";
 import ImageUploadPage from "../components/transfer/transfer-image";
 import ChatPage from "../components/chat/AiChatPage";
+import PublicCIDList from "../components/List/image-list";
 
 const Router = () => {
   return (
@@ -20,9 +21,14 @@ const Router = () => {
             <Route path="transactions" element={<Transactions />} />
             <Route path="transfer-image" element={<ImageUploadPage />} />
             <Route path="chat-ai" element={<ChatPage />} />
+            <Route path="image-list" element={<PublicCIDList />} />
           </Route>
         </Route>
       </Routes>
+
+      <footer className="fixed bottom-0 left-0 w-full flex justify-center text-xs p-4 bg-white shadow-md">
+        © 2025 QXHub. All rights reserved
+      </footer>
     </BrowserRouter>
   );
 };

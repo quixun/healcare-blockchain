@@ -5,6 +5,7 @@ import Web3Service from "../../services/web3Service";
 import { useAppDispatch } from "../../features/hooks";
 import { updateAcount } from "../../features/account/accountSlice";
 import Modal from "../common/modal";
+import { motion } from "framer-motion";
 
 const Transfer: React.FC = () => {
   const { address } = useSelector((state: RootState) => state.account);
@@ -35,11 +36,6 @@ const Transfer: React.FC = () => {
 
       if (!web3.utils.isAddress(recipient)) {
         setMessage("Địa chỉ ví không hợp lệ.");
-        return;
-      }
-
-      if (isNaN(Number(amount)) || Number(amount) <= 0) {
-        setMessage("Số tiền không hợp lệ.");
         return;
       }
 
@@ -87,67 +83,108 @@ const Transfer: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-40 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center mb-4">Chuyển tiền</h2>
-      {message && <p className="text-red-500 text-center">{message}</p>}
-      <div className="mb-4">
-        <label className="block font-medium">Địa chỉ ví nhận:</label>
+    <motion.div
+      className="max-w-md mx-auto mt-40 p-6 rounded-lg shadow-lg"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <h2 className="text-4xl font-bold text-black text-center mb-4">
+        Chuyển tiền
+      </h2>
+      {message && (
+        <motion.p
+          className="text-red-500 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          {message}
+        </motion.p>
+      )}
+      <motion.div
+        className="mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.3 }}
+      >
+        <label className="block font-medium text-black">Địa chỉ ví nhận:</label>
         <input
           type="text"
           value={recipient}
           onChange={(e) => setRecipient(e.target.value)}
-          className="w-full border px-3 py-2 rounded-lg"
+          className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
         />
-      </div>
-      <div className="mb-4">
-        <label className="block font-medium">Số tiền (ETH):</label>
+      </motion.div>
+      <motion.div
+        className="mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4, duration: 0.3 }}
+      >
+        <label className="block font-medium text-black">Số tiền (ETH):</label>
         <input
           type="text"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full border px-3 py-2 rounded-lg"
+          className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
         />
-      </div>
-      <div className="mb-4">
-        <label className="block font-medium">Thông tin chuyển tiền:</label>
+      </motion.div>
+      <motion.div
+        className="mb-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 0.3 }}
+      >
+        <label className="block font-medium text-black">
+          Thông tin chuyển tiền:
+        </label>
         <input
           type="text"
           value={transferMessage}
           onChange={(e) => setTransferMessage(e.target.value)}
-          className="w-full border px-3 py-2 rounded-lg"
+          className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
         />
-      </div>
-      <button
+      </motion.div>
+      <motion.button
         onClick={handleSendClick}
         disabled={loading}
-        className="w-full ease-in-out duration-200 cursor-pointer bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        className="w-full ease-in-out duration-200 cursor-pointer bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6, duration: 0.3 }}
       >
         {loading ? "Đang gửi..." : "Gửi tiền"}
-      </button>
+      </motion.button>
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Xác nhận gửi tiền"
       >
         <p>Bạn có chắc chắn muốn gửi tiền không?</p>
-
         <div className="mt-4 flex justify-end space-x-4">
-          <button
+          <motion.button
             onClick={() => setIsModalOpen(false)}
             className="hover:bg-gray-200 ease-in-out duration-200 cursor-pointer bg-gray-300 px-4 py-2 rounded-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.3 }}
           >
             Hủy
-          </button>
+          </motion.button>
 
-          <button
+          <motion.button
             onClick={handleConfirmSend}
-            className="hover:bg-green-400 ease-in-out duration-200 cursor-pointer bg-green-500 text-white px-4 py-2 rounded-lg"
+            className="hover:bg-green-400 ease-in-out duration-200 cursor-pointer text-white px-4 py-2 rounded-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7, duration: 0.3 }}
           >
             Xác nhận
-          </button>
+          </motion.button>
         </div>
       </Modal>
-    </div>
+    </motion.div>
   );
 };
 

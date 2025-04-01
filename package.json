@@ -22,6 +22,7 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.3.0",
     "react-router-dom": "^7.4.0",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^4.0.13",
     "web3": "^4.16.0"
   },
