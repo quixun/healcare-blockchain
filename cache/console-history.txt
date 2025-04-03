@@ -1,0 +1,5 @@
+await ethers.provider.send("eth_chainId", []);
+await ethers.provider.getNetwork()
+await ethers.provider.getNetwork();
+await ethers.provider.getBlockNumber();
+await ethers.provider.getNetwork()

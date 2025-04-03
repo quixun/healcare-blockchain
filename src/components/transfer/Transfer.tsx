@@ -4,8 +4,10 @@ import { RootState } from "../../features/store";
 import Web3Service from "../../services/web3Service";
 import { useAppDispatch } from "../../features/hooks";
 import { updateAcount } from "../../features/account/accountSlice";
-import Modal from "../common/modal";
 import { motion } from "framer-motion";
+import AlertModal from "./AlertModal";
+import TransferStatusModal from "./TransferStatusModal";
+import ConfirmTransferModal from "./ConfirmTransferModal";
 
 const Transfer: React.FC = () => {
   const { address } = useSelector((state: RootState) => state.account);
@@ -16,32 +18,58 @@ const Transfer: React.FC = () => {
   const [message, setMessage] = useState("");
   const [transferMessage, setTransferMessage] = useState("");
   const web3 = Web3Service.getInstance().getWeb3();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSendClick = () => {
-    setIsModalOpen(true);
+    if (!recipient) {
+      setAlertMessage("Vui lòng nhập địa chỉ ví của người nhận.");
+      setIsAlertModalOpen(true);
+      return;
+    }
+
+    if (!amount) {
+      setAlertMessage("Vui lòng nhập số tiền cần chuyển.");
+      setIsAlertModalOpen(true);
+      return;
+    }
+
+    if (transferMessage === "") {
+      setAlertMessage("Vui lòng nhập thông tin chuyển tiền.");
+      setIsAlertModalOpen(true);
+      return;
+    }
+
+    setIsConfirmModalOpen(true);
   };
 
-  const handleConfirmSend = () => {
-    setIsModalOpen(false);
-    handleTransfer();
+  const handleConfirmSend = async () => {
+    setIsConfirmModalOpen(false);
+    await handleTransfer();
+    setIsStatusModalOpen(true);
   };
 
   const handleTransfer = async () => {
     try {
       if (!address) {
         setMessage("Bạn chưa đăng nhập.");
+        setIsSuccess(false);
         return;
       }
 
       if (!web3.utils.isAddress(recipient)) {
         setMessage("Địa chỉ ví không hợp lệ.");
+        setIsSuccess(false);
         return;
       }
 
-      // Validate amount: must be a positive number greater than 0
       if (!/^\d*\.?\d+$/.test(amount) || parseFloat(amount) <= 0) {
         setMessage("Số tiền không hợp lệ. Vui lòng nhập số dương.");
+        setIsSuccess(false);
         return;
       }
 
@@ -68,6 +96,7 @@ const Transfer: React.FC = () => {
       );
 
       setMessage("Chuyển tiền thành công!");
+      setIsSuccess(true);
       setRecipient("");
       setAmount("");
       setTransferMessage("");
@@ -77,6 +106,7 @@ const Transfer: React.FC = () => {
       } else {
         setMessage("Giao dịch thất bại: Lỗi không xác định.");
       }
+      setIsSuccess(false);
     } finally {
       setLoading(false);
     }
@@ -156,34 +186,28 @@ const Transfer: React.FC = () => {
       >
         {loading ? "Đang gửi..." : "Gửi tiền"}
       </motion.button>
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Xác nhận gửi tiền"
-      >
-        <p>Bạn có chắc chắn muốn gửi tiền không?</p>
-        <div className="mt-4 flex justify-end space-x-4">
-          <motion.button
-            onClick={() => setIsModalOpen(false)}
-            className="hover:bg-gray-200 ease-in-out duration-200 cursor-pointer bg-gray-300 px-4 py-2 rounded-lg"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.3 }}
-          >
-            Hủy
-          </motion.button>
 
-          <motion.button
-            onClick={handleConfirmSend}
-            className="hover:bg-green-400 ease-in-out duration-200 cursor-pointer text-white px-4 py-2 rounded-lg"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7, duration: 0.3 }}
-          >
-            Xác nhận
-          </motion.button>
-        </div>
-      </Modal>
+      <ConfirmTransferModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmSend}
+        recipient={recipient}
+        amount={amount}
+        transferMessage={transferMessage}
+      />
+
+      <TransferStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        isSuccess={isSuccess}
+        message={message}
+      />
+
+      <AlertModal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        message={alertMessage}
+      />
     </motion.div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
 import { saveUserInfo, getUserInfo, Gender } from "../../services/user-service";
+import { motion, AnimatePresence } from "framer-motion"; // Import motion and AnimatePresence
 
 const genderMap = {
   [Gender.MALE]: "Nam",
@@ -96,28 +97,43 @@ const Home: React.FC = () => {
         editMode && "mt-20"
       }`}
     >
-      <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center">
+      <motion.div
+        className="bg-white shadow-lg rounded-lg p-6 w-full max-w-md text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h2 className="text-3xl font-bold text-gray-800 mb-6">
           Thông Tin Cá Nhân
         </h2>
 
         {userInfo.avatarUrl && (
-          <img
+          <motion.img
             src={userInfo.avatarUrl}
             alt="Avatar"
             className="w-32 h-32 rounded-full mx-auto mb-4"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5 }}
           />
         )}
 
-        {message && (
-          <p
-            className={`text-green-600 mb-4 transition-opacity duration-1000 ${
-              fadeOut ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            {message}
-          </p>
-        )}
+        <AnimatePresence>
+          {message && (
+            <motion.p
+              className={`text-green-600 mb-4 transition-opacity duration-1000 ${
+                fadeOut ? "opacity-0" : "opacity-100"
+              }`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              {message}
+            </motion.p>
+          )}
+        </AnimatePresence>
 
         {editMode ? (
           <>
@@ -188,16 +204,25 @@ const Home: React.FC = () => {
               />
             </div>
 
-            <button
+            <motion.button
               onClick={handleUpdateProfile}
               disabled={loading}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
             >
               {loading ? "Đang lưu..." : "Lưu thông tin"}
-            </button>
+            </motion.button>
           </>
         ) : (
-          <div className="text-left">
+          <motion.div
+            className="text-left"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <p className="text-gray-600">
               <strong>Tên chủ sở hữu:</strong>{" "}
               {userInfo.userName || "Chưa đăng nhập"}
@@ -218,15 +243,18 @@ const Home: React.FC = () => {
             <p className="text-gray-600">
               <strong>Số lượng giao dịch:</strong> {nonce || "Chưa cập nhật"}
             </p>
-            <button
+            <motion.button
               onClick={() => setEditMode(true)}
               className="mt-6 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
             >
               Chỉnh sửa thông tin
-            </button>
-          </div>
+            </motion.button>
+          </motion.div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

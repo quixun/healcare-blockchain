@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useAppDispatch } from "../../features/hooks";
 import Web3Service from "../../services/web3Service";
@@ -34,7 +34,13 @@ const Login: React.FC = () => {
         return;
       }
 
-      completeLogin(account.address, web3, balance.toString(), Number(nonce), userName);
+      completeLogin(
+        account.address,
+        web3,
+        balance.toString(),
+        Number(nonce),
+        userName
+      );
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -60,7 +66,7 @@ const Login: React.FC = () => {
       0,
       userName
     );
-  
+
     setIsModalOpen(false);
   };
 
@@ -90,6 +96,14 @@ const Login: React.FC = () => {
   };
 
   const title = "Life-changing care for anxiety, depression".split("");
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isModalOpen && inputRef.current) {
+      inputRef.current.focus(); // Focus the input when modal opens
+    }
+  }, [isModalOpen]);
 
   return (
     <motion.div
@@ -207,6 +221,7 @@ const Login: React.FC = () => {
         <h2 className="text-lg font-bold mb-4">Name Your Address</h2>
         <input
           type="text"
+          ref={inputRef}
           placeholder="Enter a name"
           value={userName}
           onChange={(e) => setUserName(e.target.value)}

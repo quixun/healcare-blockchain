@@ -7,7 +7,7 @@ import Transfer from "../components/transfer/Transfer";
 import Transactions from "../components/transactions";
 import ImageUploadPage from "../components/transfer/transfer-image";
 import ChatPage from "../components/chat/AiChatPage";
-import PublicCIDList from "../components/List/image-list";
+import PublicCIDList from "../components/List/MedicalRecordsList";
 
 const Router = () => {
   return (
