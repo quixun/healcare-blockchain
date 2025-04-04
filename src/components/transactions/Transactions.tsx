@@ -150,7 +150,7 @@ const Transactions = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   whileHover={{ scale: 1.02 }}
-                  className="p-5 border my-4 cursor-pointer border-gray-200 shadow-lg rounded-2xl bg-white flex items-center"
+                  className="p-5 border my-4 cursor-pointer border-gray-200 shadow-lg rounded-2xl bg-white flex items-center overflow-hidden"
                 >
                   <div className="mr-4">
                     {isSent ? (
@@ -159,7 +159,7 @@ const Transactions = () => {
                       <SquareArrowDownRight className="text-green-500 w-8 h-8" />
                     )}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 line-clamp-4 pr-4 overflow-hidden">
                     <p className="text-xl font-semibold">{userDisplayName}</p>
                     <p className="text-gray-500">
                       {decodeMessage(tx.input, web3)}

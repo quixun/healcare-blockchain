@@ -5,9 +5,9 @@ import PrivateRoute from "./PrivateRoute";
 import Header from "../layouts/header/Header";
 import Transfer from "../components/transfer/Transfer";
 import Transactions from "../components/transactions";
-import ImageUploadPage from "../components/transfer/transfer-image";
+import UploadInfoForm from "../components/List/MedicalRecordUpload";
 import ChatPage from "../components/chat/AiChatPage";
-import PublicCIDList from "../components/List/MedicalRecordsList";
+import RecordOwnershipCheck from "../components/List/MedicalRecordsList";
 
 const Router = () => {
   return (
@@ -19,9 +19,9 @@ const Router = () => {
             <Route index element={<Home />} />
             <Route path="transfer" element={<Transfer />} />
             <Route path="transactions" element={<Transactions />} />
-            <Route path="transfer-image" element={<ImageUploadPage />} />
+            <Route path="transfer-image" element={<UploadInfoForm />} />
             <Route path="chat-ai" element={<ChatPage />} />
-            <Route path="image-list" element={<PublicCIDList />} />
+            <Route path="image-list" element={<RecordOwnershipCheck />} />
           </Route>
         </Route>
       </Routes>
