@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
 import { contractAddress, ACCESS_CONTROL_ABI } from "./configs/contract";
+import { motion } from "motion/react";
 
 const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
   const [address, setAddress] = useState("");
@@ -73,7 +74,13 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
   };
 
   return (
-    <div className="p-4 border rounded-lg shadow-md">
+    <motion.div
+      className="p-4 border rounded-lg shadow-md"
+      initial={{ opacity: 0, x: 100 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <h2 className="text-lg font-semibold mb-2">Manage Record Access</h2>
       <input
         type="text"
@@ -105,7 +112,7 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
           {loading ? "Revoking..." : "Revoke Access"}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

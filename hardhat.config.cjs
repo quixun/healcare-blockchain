@@ -9,7 +9,7 @@ module.exports = {
     garnacho: {
       url: "http://127.0.0.1:7545", // Make sure this matches your Garnacho RPC URL
       chainId: 1337, // Replace with Garnacho's actual chain ID
-      accounts: ["0x17ef99a6d497fd31aa726860eceeac395578bdfeb5a378d3b894bfa623b51fbd"], // Use an account from Garnacho
+      accounts: ["0xcbc1cc407fa5718da98bcfb22f44151e82d14c5554948efa423e776dd53e579b"], // Use an account from Garnacho
     },
   },
 };

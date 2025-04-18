@@ -1,3 +1,16 @@
+console.log(result);
+const result = await contract.getRecordsByOwner("0xdD865C19e66f45fdD94EF0b40A598cfA9F4b10f4");
+const contract = await ethers.getContractAt("MedicalRecords", "0x4db7B2D0B3c20659950f58DD8Fd47C10c3BfC278");
+const result = await contract.getRecordsByOwner("0xdD865C19e66f45fdD94EF0b40A598cfA9F4b10f4");
+const result = await contract.getRecordsByOwner("YOUR_WALLET_ADDRESS");
+exit()
+const MedicalRecords = await ethers.getContractAt("MedicalRecords", "0x4db7B2D0B3c20659950f58DD8Fd47C10c3BfC278");
+const MedicalRecords = await ethers.getContractAt("MedicalRecords", "YOUR_CONTRACT_ADDRESS");
+console.log(result);
+const result = await MedicalRecords.getRecordsByOwner("YOUR_WALLET_ADDRESS");
+const MedicalRecords = await ethers.getContractAt("MedicalRecords", "YOUR_CONTRACT_ADDRESS");
+:qa
+exit
 await ethers.provider.send("eth_chainId", []);
 await ethers.provider.getNetwork()
 await ethers.provider.getNetwork();

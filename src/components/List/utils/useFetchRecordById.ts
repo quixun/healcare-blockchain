@@ -10,7 +10,7 @@ export type Record = {
   description: string;
 }
 
-const useFetchRecord = (recordId: string) => {
+const useFetchRecordById = (recordId: string) => {
   const [record, setRecord] = useState<Record | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,4 +56,4 @@ const useFetchRecord = (recordId: string) => {
   return { record, loading, error, fetchRecord };
 };
 
-export default useFetchRecord;
+export default useFetchRecordById;

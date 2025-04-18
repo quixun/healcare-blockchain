@@ -5,7 +5,11 @@ import { RootState } from "../../features/store";
 // import Web3Service from "../../services/web3Service";
 import { v4 as uuidv4 } from "uuid";
 import { ethers } from "ethers";
-import { contractAddress, UPLOAD_MEDICAL_RECORDS_ABI } from "./configs/contract";
+import {
+  contractAddress,
+  UPLOAD_MEDICAL_RECORDS_ABI,
+} from "./configs/contract";
+import { motion } from "motion/react";
 
 const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
 
@@ -14,7 +18,6 @@ const UploadInfoForm: React.FC = () => {
   const [description, setDescription] = useState(""); // Optional description (currently not stored on-chain)
   const [recordId, setRecordId] = useState("");
   const [loading, setLoading] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const { address } = useSelector((state: RootState) => state.account);
   // const web3 = Web3Service.getInstance().getWeb3();
   const uploadInputRef = useRef<HTMLInputElement>(null);
@@ -58,7 +61,7 @@ const UploadInfoForm: React.FC = () => {
       // Initialize a provider and get the signer (using JsonRpcProvider for Ganache)
       const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
       const signer = await provider.getSigner(account);
-      
+
       const contract = new ethers.Contract(
         contractAddress,
         UPLOAD_MEDICAL_RECORDS_ABI,
@@ -72,7 +75,6 @@ const UploadInfoForm: React.FC = () => {
       await tx.wait();
 
       alert(`Medical record saved to blockchain! for acount: ${account}`);
-      setUploadedFiles((prev) => [...cids, ...prev]);
       setFiles([]);
       setDescription("");
       // Generate a new record ID for the next upload
@@ -85,89 +87,52 @@ const UploadInfoForm: React.FC = () => {
   };
 
   return (
-    <div className="p-8 grid grid-cols-1 mt-20 md:grid-cols-2 gap-8 h-screen overflow-y-hidden">
-      <div className="md:sticky top-20 self-start h-fit">
-        <h1 className="text-3xl font-bold mb-6">Upload Medical Record</h1>
-
-        {/* Display the generated Record ID */}
-        <input
-          type="text"
-          placeholder="Record ID"
-          value={recordId}
-          readOnly
-          className="border p-2 rounded-lg mb-4 w-full"
-        />
-
-        {/* Optional description field */}
-        <textarea
-          placeholder="Enter Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="border p-2 rounded-lg mb-4 w-full"
-        />
-
-        <input
-          type="file"
-          accept="image/*,application/pdf"
-          multiple
-          onChange={(e) => setFiles(Array.from(e.target.files || []))}
-          className="border p-2 rounded-lg mb-4 w-full"
-          ref={uploadInputRef}
-        />
-
-        <button
-          onClick={uploadToIPFS}
-          disabled={loading}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:bg-gray-400"
+    <div className="my-20">
+      <div className="flex-1 flex justify-center items-center relative">
+        <motion.div
+          className="relative z-30 w-full max-w-lg h-full max-h-[950px] px-9 pt-16 rounded-lg"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          {loading ? "Uploading..." : "Upload and Save"}
-        </button>
-      </div>
-      <div className="overflow-y-auto scrollbar-hide max-h-[calc(100vh-5rem)] pr-4">
-        <h2 className="text-2xl font-bold mb-4">Uploaded Files</h2>
-        <div className="space-y-4">
-          {uploadedFiles.length > 0 ? (
-            uploadedFiles.map((file, index) => (
-              <div
-                key={index}
-                className="border p-4 items-center flex flex-col rounded-lg overflow-hidden"
-              >
-                {file.endsWith(".pdf") ? (
-                  <a
-                    href={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${file}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    View PDF
-                  </a>
-                ) : (
-                  <img
-                    src={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${file}`}
-                    alt="Uploaded"
-                    className="object-contain rounded-lg mb-2"
-                    style={{
-                      maxWidth: "600px",
-                      maxHeight: "400px",
-                      width: "100%",
-                      height: "auto",
-                    }}
-                  />
-                )}
-                <a
-                  href={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${file}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
-                  {file}
-                </a>
-              </div>
-            ))
-          ) : (
-            <p>No files uploaded yet.</p>
-          )}
-        </div>
+          <div className="md:sticky top-20 self-start h-fit">
+            <h1 className="text-3xl font-bold mb-6">Upload Medical Record</h1>
+
+            {/* Display the generated Record ID */}
+            <input
+              type="text"
+              placeholder="Record ID"
+              value={recordId}
+              readOnly
+              className="border p-2 rounded-lg mb-4 w-full"
+            />
+
+            {/* Optional description field */}
+            <textarea
+              placeholder="Enter Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="border p-2 rounded-lg mb-4 w-full"
+            />
+
+            <input
+              type="file"
+              accept="image/*,application/pdf"
+              multiple
+              onChange={(e) => setFiles(Array.from(e.target.files || []))}
+              className="border p-2 rounded-lg mb-4 w-full"
+              ref={uploadInputRef}
+            />
+
+            <button
+              onClick={uploadToIPFS}
+              disabled={loading}
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:bg-gray-400"
+            >
+              {loading ? "Uploading..." : "Upload and Save"}
+            </button>
+          </div>
+        </motion.div>
       </div>
     </div>
   );

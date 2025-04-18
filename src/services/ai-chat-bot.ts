@@ -11,7 +11,7 @@ export const fetchAIResponse = async (userMessages: AIMessage[]) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-pro-exp-03-25:free",
+          model: "shisa-ai/shisa-v2-llama3.3-70b:free",
           messages: userMessages.map((msg) => ({
             role: "user",
             content: msg.type === "text" ? msg.text : msg.image_url?.url,

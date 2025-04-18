@@ -135,7 +135,7 @@ const ChatInput = ({
     <>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="border border-gray-300 py-4 px-4 fixed bottom-12 left-1/2 transform -translate-x-1/2 w-[90%] flex-col max-w-lvh bg-white flex items-start rounded-lg"
+        className="border border-gray-300 py-4 px-4 mx-auto w-full absolute left-1/2 -translate-x-1/2 bottom-14 flex-col max-w-lvh bg-white flex items-start rounded-lg"
       >
         {/* Image Preview */}
         {preview && (

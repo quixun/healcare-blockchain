@@ -113,102 +113,110 @@ const Transfer: React.FC = () => {
   };
 
   return (
-    <motion.div
-      className="max-w-md mx-auto mt-40 p-6 rounded-lg shadow-lg"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h2 className="text-4xl font-bold text-black text-center mb-4">
-        Chuyển tiền
-      </h2>
-      {message && (
-        <motion.p
-          className="text-red-500 text-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+    <div className="my-20">
+      <div className="flex-1 flex justify-center items-center relative">
+        <motion.div
+          className="relative z-30 w-full max-w-lg h-full max-h-[950px] px-9 pt-16 rounded-lg"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          {message}
-        </motion.p>
-      )}
-      <motion.div
-        className="mb-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.3 }}
-      >
-        <label className="block font-medium text-black">Địa chỉ ví nhận:</label>
-        <input
-          type="text"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
-        />
-      </motion.div>
-      <motion.div
-        className="mb-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.3 }}
-      >
-        <label className="block font-medium text-black">Số tiền (ETH):</label>
-        <input
-          type="text"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
-        />
-      </motion.div>
-      <motion.div
-        className="mb-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.3 }}
-      >
-        <label className="block font-medium text-black">
-          Thông tin chuyển tiền:
-        </label>
-        <input
-          type="text"
-          value={transferMessage}
-          onChange={(e) => setTransferMessage(e.target.value)}
-          className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
-        />
-      </motion.div>
-      <motion.button
-        onClick={handleSendClick}
-        disabled={loading}
-        className="w-full ease-in-out duration-200 cursor-pointer bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.3 }}
-      >
-        {loading ? "Đang gửi..." : "Gửi tiền"}
-      </motion.button>
+          <h2 className="text-4xl font-bold text-black text-center mb-4">
+            Chuyển tiền
+          </h2>
+          {message && (
+            <motion.p
+              className="text-red-500 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {message}
+            </motion.p>
+          )}
+          <motion.div
+            className="mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+          >
+            <label className="block font-medium text-black">
+              Địa chỉ ví nhận:
+            </label>
+            <input
+              type="text"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </motion.div>
+          <motion.div
+            className="mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.3 }}
+          >
+            <label className="block font-medium text-black">
+              Số tiền (ETH):
+            </label>
+            <input
+              type="text"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </motion.div>
+          <motion.div
+            className="mb-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.3 }}
+          >
+            <label className="block font-medium text-black">
+              Thông tin chuyển tiền:
+            </label>
+            <input
+              type="text"
+              value={transferMessage}
+              onChange={(e) => setTransferMessage(e.target.value)}
+              className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+            />
+          </motion.div>
+          <motion.button
+            onClick={handleSendClick}
+            disabled={loading}
+            className="w-full ease-in-out duration-200 cursor-pointer bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.3 }}
+          >
+            {loading ? "Đang gửi..." : "Gửi tiền"}
+          </motion.button>
 
-      <ConfirmTransferModal
-        isOpen={isConfirmModalOpen}
-        onClose={() => setIsConfirmModalOpen(false)}
-        onConfirm={handleConfirmSend}
-        recipient={recipient}
-        amount={amount}
-        transferMessage={transferMessage}
-      />
+          <ConfirmTransferModal
+            isOpen={isConfirmModalOpen}
+            onClose={() => setIsConfirmModalOpen(false)}
+            onConfirm={handleConfirmSend}
+            recipient={recipient}
+            amount={amount}
+            transferMessage={transferMessage}
+          />
 
-      <TransferStatusModal
-        isOpen={isStatusModalOpen}
-        onClose={() => setIsStatusModalOpen(false)}
-        isSuccess={isSuccess}
-        message={message}
-      />
+          <TransferStatusModal
+            isOpen={isStatusModalOpen}
+            onClose={() => setIsStatusModalOpen(false)}
+            isSuccess={isSuccess}
+            message={message}
+          />
 
-      <AlertModal
-        isOpen={isAlertModalOpen}
-        onClose={() => setIsAlertModalOpen(false)}
-        message={alertMessage}
-      />
-    </motion.div>
+          <AlertModal
+            isOpen={isAlertModalOpen}
+            onClose={() => setIsAlertModalOpen(false)}
+            message={alertMessage}
+          />
+        </motion.div>
+      </div>
+    </div>
   );
 };
 

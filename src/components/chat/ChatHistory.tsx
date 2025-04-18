@@ -118,7 +118,7 @@ const ChatHistory = ({
   return (
     <motion.div
       animate={{ width: getWidth() }}
-      className="fixed left-0 bottom-0 bg-white rounded-lg shadow-xl h-[90%] max-w-lg flex flex-col"
+      className="absolute left-0 top-0 bg-white rounded-lg shadow-xl h-full max-w-lg flex flex-col"
     >
       <button
         onClick={() => setIsOpen(!isOpen)}

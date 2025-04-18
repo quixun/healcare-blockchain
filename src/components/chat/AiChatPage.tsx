@@ -7,6 +7,7 @@ import AIChatScreen from "./AIChatScreen";
 import ChatHistory from "./ChatHistory";
 import { RootState } from "../../features/store";
 import { useSelector } from "react-redux";
+import { motion } from "motion/react";
 
 const ChatPage = () => {
   const [selectedConversation, setSelectedConversation] = useState<
@@ -52,9 +53,18 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="h-screen flex overflow-hidden">
-      <ChatHistory onSelectConversation={setSelectedConversation} />
-      <AIChatScreen initialMessages={selectedConversation} />
+    <div className="my-20">
+      <div className="flex-1 h-screen flex justify-center items-center relative">
+        <motion.div
+          className="z-30 w-full h-full flex rounded-lg overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <ChatHistory onSelectConversation={setSelectedConversation} />
+          <AIChatScreen initialMessages={selectedConversation} />
+        </motion.div>
+      </div>
     </div>
   );
 };

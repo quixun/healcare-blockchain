@@ -12,6 +12,7 @@ contract MedicalRecords is Ownable {
     }
 
     mapping(string => Record) private records; // Mapping for records by ID
+    string[] private recordIdList; // Store all record IDs
 
     // Events to track record uploads and access granting/revoking
     event RecordUploaded(
@@ -42,37 +43,70 @@ contract MedicalRecords is Ownable {
         require(bytes(recordId).length > 0, "Record ID cannot be empty");
         require(records[recordId].owner == address(0), "Record already exists");
 
-        // Create a new record and assign the current caller as the owner
         Record storage newRecord = records[recordId];
         newRecord.owner = msg.sender;
-        newRecord.description = _description; // Set the description
+        newRecord.description = _description;
 
-        // Add CIDs to the record
         for (uint i = 0; i < _cids.length; i++) {
             newRecord.cids.push(_cids[i]);
         }
 
+        recordIdList.push(recordId); // Track the new record ID
         emit RecordUploaded(recordId, _cids, msg.sender, _description);
     }
 
-    // Retrieve a record's CIDs, owner, and description
+    // Retrieve a record's CIDs, owner, and description by its ID
     function getRecord(
         string memory recordId
     ) external view returns (string[] memory, address, string memory) {
         require(records[recordId].owner != address(0), "Record not found");
 
-        return (
-            records[recordId].cids,
-            records[recordId].owner,
-            records[recordId].description
-        );
+        Record storage rec = records[recordId];
+        return (rec.cids, rec.owner, rec.description);
     }
 
-    // Grant access to a doctor for a specific record, with an expiry duration
+    // Retrieve all records created by a specific owner
+    function getRecordsByOwner(
+        address _owner
+    )
+        external
+        view
+        returns (
+            string[] memory recordIds,
+            string[][] memory allCids,
+            string[] memory descriptions
+        )
+    {
+        uint256 count = 0;
+        // First, count how many records belong to _owner
+        for (uint i = 0; i < recordIdList.length; i++) {
+            if (records[recordIdList[i]].owner == _owner) {
+                count++;
+            }
+        }
+
+        // Initialize arrays to hold the result data
+        recordIds = new string[](count);
+        allCids = new string[][](count);
+        descriptions = new string[](count);
+
+        uint256 index = 0;
+        for (uint i = 0; i < recordIdList.length; i++) {
+            if (records[recordIdList[i]].owner == _owner) {
+                recordIds[index] = recordIdList[i];
+                Record storage rec = records[recordIdList[i]];
+                allCids[index] = rec.cids;
+                descriptions[index] = rec.description;
+                index++;
+            }
+        }
+    }
+
+    // Grant access to a doctor for a specific record, with an expiry duration (in seconds)
     function grantAccess(
         string memory recordId,
         address doctor,
-        uint256 duration // Duration in seconds
+        uint256 duration
     ) external {
         require(
             records[recordId].owner == msg.sender,
@@ -107,7 +141,7 @@ contract MedicalRecords is Ownable {
 
         delete records[recordId].accessExpiry[doctor];
 
-        emit AccessRevoked(recordId, doctor, block.timestamp); // <-- Missing semicolon here
+        emit AccessRevoked(recordId, doctor, block.timestamp);
     }
 
     // Check the access expiry time for a specific doctor

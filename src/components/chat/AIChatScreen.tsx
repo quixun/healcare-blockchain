@@ -89,7 +89,6 @@ const AIChatScreen = ({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Update messages when a new conversation is selected
   useEffect(() => {
     setMessages(initialMessages);
   }, [initialMessages]);
@@ -137,11 +136,11 @@ const AIChatScreen = ({
   };
 
   return (
-    <div className="mx-auto p-4 mt-24 bg-white w-[90%] max-w-lvh rounded-lg flex flex-col">
+    <div className="mx-auto p-4 bg-white w-[90%] max-w-lvh rounded-lg flex flex-col">
       <div className="overflow-y-auto scrollbar-hide max-h-[85%] flex-1 space-y-3 pt-0 px-2">
         <ChatMessages messages={messages} />
-        {loading && <p className="text-gray-500">AI is typing...</p>}
         <div ref={messagesEndRef} />
+        {loading && <p className="text-gray-500">AI is typing...</p>}
       </div>
       {error && (
         <div className="p-2 text-red-500 text-sm flex items-center">

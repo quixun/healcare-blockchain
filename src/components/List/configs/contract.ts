@@ -1,4 +1,4 @@
-export const contractAddress = "0xB3DD8153012C58B7F84159A38912211fe626E07c";
+export const contractAddress = "0x4E344d0D4C56Cf6db9C9219582f801E9af25D5FA";
 
 export const MEDICAL_RECORDS_ABI = [
   {
@@ -13,6 +13,32 @@ export const MEDICAL_RECORDS_ABI = [
     type: "function",
   },
 ];
+
+export const MEDICAL_ALL_RECORDS_ABI = [
+  {
+    inputs: [{ internalType: "string", name: "recordId", type: "string" }],
+    name: "getRecord",
+    outputs: [
+      { internalType: "string[]", name: "", type: "string[]" },
+      { internalType: "address", name: "", type: "address" },
+      { internalType: "string", name: "", type: "string" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [{ internalType: "address", name: "_owner", type: "address" }],
+    name: "getRecordsByOwner",
+    outputs: [
+      { internalType: "string[]", name: "", type: "string[]" },
+      { internalType: "string[][]", name: "", type: "string[][]" },
+      { internalType: "string[]", name: "", type: "string[]" },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
 
 export const UPLOAD_MEDICAL_RECORDS_ABI = [
   {

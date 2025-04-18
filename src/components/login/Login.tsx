@@ -56,14 +56,16 @@ const Login: React.FC = () => {
     if (!userName.trim()) return;
     const web3: Web3 = Web3Service.getInstance().getWeb3();
     const account = web3.eth.accounts.privateKeyToAccount(privateKey);
+    const balance = await web3.eth.getBalance(account.address);
+    const nonce = await web3.eth.getTransactionCount(account.address);
 
     await saveUserName(account.address, userName);
 
     completeLogin(
       account.address,
       web3,
-      web3.utils.toWei("0", "ether"),
-      0,
+      balance.toString(),
+      Number(nonce),
       userName
     );
 
