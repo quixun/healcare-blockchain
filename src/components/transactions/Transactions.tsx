@@ -50,24 +50,28 @@ const Transactions = () => {
       );
 
       const blocks = await Promise.all(blockPromises);
+
       const txs: Transaction[] = blocks.flatMap(
         (block) =>
           block?.transactions
+            // 1) only your address
             .filter(
               (tx): tx is Transaction =>
                 typeof tx === "object" &&
                 (tx.from.toLowerCase() === address.toLowerCase() ||
                   tx.to?.toLowerCase() === address.toLowerCase())
             )
+            // 2) stamp the timestamp
             .map((tx) => ({ ...tx, timestamp: Number(block.timestamp) }))
+            // 3) drop messages that start “IMG:”
             .filter((tx) => {
               try {
-                const decodedInput = web3.utils.hexToUtf8(tx.input);
-                return !decodedInput.startsWith("IMG:");
+                return !web3.utils.hexToUtf8(tx.input).startsWith("IMG:");
               } catch {
                 return true;
               }
-            }) || []
+            })
+            .filter((tx) => BigInt(tx.value) > 0n) || []
       );
 
       return txs;
@@ -127,62 +131,90 @@ const Transactions = () => {
   }, [transactions]);
 
   return (
-    <div className="p-6 mt-20 max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold text-center mb-8">Lịch sử giao dịch</h2>
-      {Object.keys(groupedTransactions).length > 0 ? (
-        Object.entries(groupedTransactions).map(([date, txs]) => (
-          <div key={date} className="my-5">
-            <h3 className="text-2xl font-semibold mb-4">{date}</h3>
-            {txs.map((tx) => {
-              const isSent = tx.from.toLowerCase() === address?.toLowerCase();
-              const amount = `${isSent ? "-" : "+"}${web3.utils.fromWei(
-                tx.value.toString(),
-                "ether"
-              )} ETH`;
-              const userDisplayName = isSent
-                ? userNames[tx.to ?? ""] || tx.to
-                : "Tiền chuyển vào";
+    <div className="my-20">
+      <div className="flex-1 flex justify-center items-center relative">
+        <motion.div
+          className="relative h-full px-9 pt-16 rounded-lg z-30 w-full p-6 max-w-4xl mx-auto"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.h2
+            className="text-3xl font-bold text-center mb-8"
+            initial={{ opacity: 0, y: -300 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            Lịch sử giao dịch
+          </motion.h2>
+          {Object.keys(groupedTransactions).length > 0 ? (
+            Object.entries(groupedTransactions).map(([date, txs]) => (
+              <div key={date} className="my-5">
+                <h3 className="text-2xl font-semibold mb-4">{date}</h3>
+                {txs.map((tx) => {
+                  const isSent =
+                    tx.from.toLowerCase() === address?.toLowerCase();
+                  const amount = `${isSent ? "-" : "+"}${web3.utils.fromWei(
+                    tx.value.toString(),
+                    "ether"
+                  )} ETH`;
+                  const userDisplayName = isSent
+                    ? userNames[tx.to ?? ""] || tx.to
+                    : "Tiền chuyển vào";
 
-              return (
-                <motion.div
-                  key={tx.hash}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="p-5 border my-4 cursor-pointer border-gray-200 shadow-lg rounded-2xl bg-white flex items-center"
-                >
-                  <div className="mr-4">
-                    {isSent ? (
-                      <SquareArrowUpLeft className="text-red-500 w-8 h-8" />
-                    ) : (
-                      <SquareArrowDownRight className="text-green-500 w-8 h-8" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xl font-semibold">{userDisplayName}</p>
-                    <p className="text-gray-500">
-                      {decodeMessage(tx.input, web3)}
-                    </p>
-                    <p className="text-gray-400 text-sm">
-                      {formatTimestamp(tx.timestamp)}
-                    </p>
-                  </div>
-                  <p
-                    className={`text-xl ${
-                      isSent ? "text-red-500" : "text-green-500"
-                    }`}
-                  >
-                    {amount}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </div>
-        ))
-      ) : (
-        <p className="text-center text-gray-500">Không có giao dịch nào.</p>
-      )}
+                  return (
+                    <motion.div
+                      key={tx.hash}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      whileHover={{ scale: 1.02 }}
+                      className="p-5 border max-h-[550px] overflow-y-scroll my-4 cursor-pointer border-gray-200 shadow-lg rounded-2xl bg-white flex items-center overflow-hidden"
+                    >
+                      <div className="mr-4">
+                        {isSent ? (
+                          <SquareArrowUpLeft className="text-red-500 w-8 h-8" />
+                        ) : (
+                          <SquareArrowDownRight className="text-green-500 w-8 h-8" />
+                        )}
+                      </div>
+                      <div className="flex-1 line-clamp-4 pr-4 overflow-hidden">
+                        <p className="text-xl font-semibold">
+                          {userDisplayName}
+                        </p>
+                        <p className="text-gray-500">
+                          {decodeMessage(tx.input, web3)}
+                        </p>
+                        <p className="text-gray-400 text-sm">
+                          {formatTimestamp(tx.timestamp)}
+                        </p>
+                      </div>
+                      <p
+                        className={`text-xl ${
+                          isSent ? "text-red-500" : "text-green-500"
+                        }`}
+                      >
+                        {amount}
+                      </p>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            ))
+          ) : (
+            <motion.p
+              className="text-center text-gray-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5 }}
+            >
+              Không có giao dịch nào.
+            </motion.p>
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 };

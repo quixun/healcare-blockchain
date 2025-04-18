@@ -26,7 +26,11 @@ const accountSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action: PayloadAction<AccountState>) => {
-      return { ...state, ...action.payload };
+      state.address = action.payload.address;
+      state.balance = action.payload.balance;
+      state.nonce = action.payload.nonce;
+      state.status = action.payload.status;
+      state.name = action.payload.name;
     },
 
     logout: (state) => {
@@ -38,7 +42,8 @@ const accountSlice = createSlice({
     },
 
     updateAcount: (state, action: PayloadAction<UpdateAccountPayload>) => {
-      return { ...state, ...action.payload };
+      state.balance = action.payload.balance;
+      state.nonce = action.payload.nonce;
     },
   },
 });
