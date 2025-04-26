@@ -13,6 +13,7 @@ import Footer from "../layouts/footer/Footer";
 import AccountPage from "../components/account/account-page";
 import MedicinesList from "../components/medicines/medicines-list";
 import ScrollToTop from "../components/common/force-top";
+import { RecordDetail } from "../components/List/MedicalRecordDetail";
 
 const AuthLayout = () => (
   <>
@@ -25,6 +26,10 @@ const AuthLayout = () => (
         <Route path="transfer-image" element={<UploadInfoForm />} />
         <Route path="chat-ai" element={<ChatPage />} />
         <Route path="services/record" element={<RecordOwnershipCheck />} />
+        <Route
+          path="services/record/details/:recordID"
+          element={<RecordDetail />}
+        />
         <Route path="about-us" element={<AboutUsPage />} />
         <Route path="account" element={<AccountPage />} />
         <Route path="services/medicines" element={<MedicinesList />} />

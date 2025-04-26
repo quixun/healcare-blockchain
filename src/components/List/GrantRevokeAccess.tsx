@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 
 const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
   const [address, setAddress] = useState("");
-  const [duration, setDuration] = useState(""); // User-inputted duration
+  const [duration, setDuration] = useState("");
   const [loading, setLoading] = useState(false);
   const { address: account } = useSelector((state: RootState) => state.account);
 
@@ -22,7 +22,7 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
     if (!address || !duration)
       return alert("Please enter address and duration");
 
-    const durationInSeconds = parseInt(duration, 10); // Convert to number
+    const durationInSeconds = parseInt(duration, 10);
     if (isNaN(durationInSeconds) || durationInSeconds <= 0)
       return alert("Invalid duration");
 

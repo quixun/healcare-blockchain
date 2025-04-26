@@ -86,7 +86,13 @@ const AIChatScreen = ({
   }, [fetchUploadedImages]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const el = messagesEndRef.current;
+    if (el) {
+      const parent = el.parentElement;
+      if (parent) {
+        parent.scrollTop = parent.scrollHeight - 50;
+      }
+    }
   }, [messages]);
 
   useEffect(() => {

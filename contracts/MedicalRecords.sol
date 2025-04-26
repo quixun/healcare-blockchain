@@ -4,23 +4,26 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MedicalRecords is Ownable {
-    struct Record {
-        string[] cids; // Store multiple CIDs
-        address owner; // Owner of the record
-        string description; // Description of the record
-        mapping(address => uint256) accessExpiry; // Access expiry mapping for doctors
+    struct MedicalRecord {
+        // IPFS CIDs
+        string[] cids;
+        // Patient
+        string patientName;
+        uint8 patientAge;
+        string patientGender;
+        // Vitals
+        string bloodPressure;
+        string heartRate;
+        string temperature;
+        // Access control & owner
+        address owner;
+        mapping(address => uint256) accessExpiry;
     }
 
-    mapping(string => Record) private records; // Mapping for records by ID
-    string[] private recordIdList; // Store all record IDs
+    mapping(string => MedicalRecord) private records;
+    string[] private recordIds; // This array stores all record IDs
 
-    // Events to track record uploads and access granting/revoking
-    event RecordUploaded(
-        string indexed recordId,
-        string[] cids,
-        address indexed owner,
-        string description
-    );
+    event RecordUploaded(string indexed recordId, address indexed owner);
     event AccessGranted(
         string indexed recordId,
         address indexed doctor,
@@ -34,69 +37,97 @@ contract MedicalRecords is Ownable {
 
     constructor() Ownable(msg.sender) {}
 
-    // Upload a medical record with multiple CIDs and a description
+    /// @notice Upload a simplified medical record
     function uploadRecord(
         string memory recordId,
+        // IPFS
         string[] memory _cids,
-        string memory _description
+        // Patient
+        string memory _name,
+        uint8 _age,
+        string memory _gender,
+        // Vitals
+        string memory _bloodPressure,
+        string memory _heartRate,
+        string memory _temperature
     ) external {
-        require(bytes(recordId).length > 0, "Record ID cannot be empty");
-        require(records[recordId].owner == address(0), "Record already exists");
+        require(bytes(recordId).length > 0, "ID required");
+        require(records[recordId].owner == address(0), "Already exists");
 
-        Record storage newRecord = records[recordId];
-        newRecord.owner = msg.sender;
-        newRecord.description = _description;
+        MedicalRecord storage rec = records[recordId];
 
+        // owner & CIDs
+        rec.owner = msg.sender;
         for (uint i = 0; i < _cids.length; i++) {
-            newRecord.cids.push(_cids[i]);
+            rec.cids.push(_cids[i]);
         }
 
-        recordIdList.push(recordId); // Track the new record ID
-        emit RecordUploaded(recordId, _cids, msg.sender, _description);
+        // patient
+        rec.patientName = _name;
+        rec.patientAge = _age;
+        rec.patientGender = _gender;
+
+        // vitals
+        rec.bloodPressure = _bloodPressure;
+        rec.heartRate = _heartRate;
+        rec.temperature = _temperature;
+
+        // Push recordId to recordIds list
+        recordIds.push(recordId);
+        emit RecordUploaded(recordId, msg.sender);
     }
 
-    // Retrieve a record's CIDs, owner, and description by its ID
-    function getRecord(
-        string memory recordId
-    ) external view returns (string[] memory, address, string memory) {
-        require(records[recordId].owner != address(0), "Record not found");
-
-        Record storage rec = records[recordId];
-        return (rec.cids, rec.owner, rec.description);
-    }
-
-    // Retrieve all records created by a specific owner
+    /// @notice Read the simplified record in one call for all records owned by a specific address
     function getRecordsByOwner(
         address _owner
     )
         external
         view
         returns (
-            string[] memory recordIds,
-            string[][] memory allCids,
-            string[] memory descriptions
+            string[] memory ownerRecordIds, // Renamed here to avoid shadowing
+            string[][] memory cidsList,
+            string[] memory names,
+            uint8[] memory ages,
+            string[] memory genders,
+            string[] memory bloodPressures,
+            string[] memory heartRates,
+            string[] memory temperatures,
+            address[] memory owners
         )
     {
         uint256 count = 0;
-        // First, count how many records belong to _owner
-        for (uint i = 0; i < recordIdList.length; i++) {
-            if (records[recordIdList[i]].owner == _owner) {
+
+        // Count how many records belong to the owner
+        for (uint i = 0; i < recordIds.length; i++) {
+            if (records[recordIds[i]].owner == _owner) {
                 count++;
             }
         }
 
         // Initialize arrays to hold the result data
-        recordIds = new string[](count);
-        allCids = new string[][](count);
-        descriptions = new string[](count);
+        ownerRecordIds = new string[](count); // Renamed here as well
+        cidsList = new string[][](count);
+        names = new string[](count);
+        ages = new uint8[](count);
+        genders = new string[](count);
+        bloodPressures = new string[](count);
+        heartRates = new string[](count);
+        temperatures = new string[](count);
+        owners = new address[](count);
 
         uint256 index = 0;
-        for (uint i = 0; i < recordIdList.length; i++) {
-            if (records[recordIdList[i]].owner == _owner) {
-                recordIds[index] = recordIdList[i];
-                Record storage rec = records[recordIdList[i]];
-                allCids[index] = rec.cids;
-                descriptions[index] = rec.description;
+        for (uint i = 0; i < recordIds.length; i++) {
+            if (records[recordIds[i]].owner == _owner) {
+                MedicalRecord storage rec = records[recordIds[i]];
+                ownerRecordIds[index] = recordIds[i]; // Store the correct recordId here
+                cidsList[index] = rec.cids;
+                names[index] = rec.patientName;
+                ages[index] = rec.patientAge;
+                genders[index] = rec.patientGender;
+                bloodPressures[index] = rec.bloodPressure;
+                heartRates[index] = rec.heartRate;
+                temperatures[index] = rec.temperature;
+                owners[index] = rec.owner;
                 index++;
             }
         }
@@ -151,5 +182,65 @@ contract MedicalRecords is Ownable {
     ) external view returns (uint256) {
         require(records[recordId].owner != address(0), "Record does not exist");
         return records[recordId].accessExpiry[doctor];
+    }
+
+    function getRecordsSharedWithMe(
+        address doctor
+    )
+        external
+        view
+        returns (
+            string[] memory sharedRecordIds,
+            string[][] memory cidsList,
+            string[] memory names,
+            uint8[] memory ages,
+            string[] memory genders,
+            string[] memory bloodPressures,
+            string[] memory heartRates,
+            string[] memory temperatures,
+            address[] memory owners
+        )
+    {
+        uint256 count = 0;
+
+        for (uint i = 0; i < recordIds.length; i++) {
+            MedicalRecord storage rec = records[recordIds[i]];
+            if (
+                rec.accessExpiry[doctor] > block.timestamp &&
+                rec.owner != doctor // Just in case doctors are also patients
+            ) {
+                count++;
+            }
+        }
+
+        sharedRecordIds = new string[](count);
+        cidsList = new string[][](count);
+        names = new string[](count);
+        ages = new uint8[](count);
+        genders = new string[](count);
+        bloodPressures = new string[](count);
+        heartRates = new string[](count);
+        temperatures = new string[](count);
+        owners = new address[](count);
+
+        uint256 index = 0;
+        for (uint i = 0; i < recordIds.length; i++) {
+            MedicalRecord storage rec = records[recordIds[i]];
+            if (
+                rec.accessExpiry[doctor] > block.timestamp &&
+                rec.owner != doctor
+            ) {
+                sharedRecordIds[index] = recordIds[i];
+                cidsList[index] = rec.cids;
+                names[index] = rec.patientName;
+                ages[index] = rec.patientAge;
+                genders[index] = rec.patientGender;
+                bloodPressures[index] = rec.bloodPressure;
+                heartRates[index] = rec.heartRate;
+                temperatures[index] = rec.temperature;
+                owners[index] = rec.owner;
+                index++;
+            }
+        }
     }
 }
