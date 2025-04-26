@@ -8,10 +8,17 @@ export type Record = {
   id: string;
   cids: string[];
   owner: string;
-  description: string;
+  patientName: string;
+  patientAge: number;
+  patientGender: string;
+  vitals: {
+    bloodPressure: string;
+    heartRate: string;
+    temperature: string;
+  };
 };
 
-const useFetchAllRecords = () => {
+const useFetchAllMedicalRecords = () => {
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,15 +37,42 @@ const useFetchAllRecords = () => {
         signer
       );
 
-      const [recordIds, allCids, descriptions] =
-        await contract.getRecordsByOwner(address);
+      const [
+        ownerRecordIds,
+        cidsList,
+        names,
+        ages,
+        genders,
+        bloodPressures,
+        heartRates,
+        temperatures,
+        owners,
+      ] = await contract.getRecordsByOwner(address);
 
-      const userRecords = recordIds.map((id: string, index: number) => ({
-        id,
-        cids: allCids[index],
-        owner: address,
-        description: descriptions[index],
-      }));
+      // Process each record and map the data
+      const userRecords = cidsList.map((cids: string[], index: number) => {
+        const recordId = ownerRecordIds[index] || "";
+        const patientName = names[index] || "";
+        const patientAge = ages[index] || 0;
+        const patientGender = genders[index] || "";
+        const bloodPressure = bloodPressures[index] || "";
+        const heartRate = heartRates[index] || "";
+        const temperature = temperatures[index] || "";        
+
+        return {
+          id: recordId,
+          cids,
+          owner: owners[index] || "",
+          patientName,
+          patientAge,
+          patientGender,
+          vitals: {
+            bloodPressure,
+            heartRate,
+            temperature,
+          },
+        };
+      });
 
       setRecords(userRecords);
       setError(null);
@@ -58,4 +92,4 @@ const useFetchAllRecords = () => {
   return { records, loading, error, fetchRecords };
 };
 
-export default useFetchAllRecords;
+export default useFetchAllMedicalRecords;

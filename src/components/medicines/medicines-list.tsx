@@ -1,13 +1,14 @@
 import { motion } from "motion/react";
 import ProductCarousel from "./components/product-carousel";
-import DealsSection from "./medicine-list-sections/deals-section";
+import DealsSection, { DealItem } from "./medicine-list-sections/deals-section";
 import SalesBanner from "./medicine-list-sections/sales-banner";
 import PopularMedicines from "./medicine-list-sections/popular-medicine-section";
 import ClientStoriesSection from "./medicine-list-sections/story-client-section";
 import GeneralSection from "./medicine-list-sections/general-section";
 
-const dealItem = [
+const dealItem: DealItem[] = [
   {
+    id: 1,
     image: "/images/medicines/Omega-3-Fish-Oil.webp",
     brand: "Soft Toys",
     name: "Omega-3 Fish Oil",
@@ -17,6 +18,7 @@ const dealItem = [
     days: 27,
   },
   {
+    id: 2,
     image: "/images/medicines/Red-Ginseng-Royal.webp",
     brand: "Vitazeen",
     name: "Red Ginseng Royal",
@@ -26,6 +28,7 @@ const dealItem = [
     days: 44,
   },
   {
+    id: 3,
     image: "/images/medicines/Test-Up-Men-Over-40.webp",
     brand: "Vitazeen",
     name: "Test Up Men Over 40",

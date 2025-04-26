@@ -1,11 +1,13 @@
 import { CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router";
 
 type AboutUsSectionProps = {
   children: React.ReactNode;
 };
 
 export default function AboutUsSection({ children }: AboutUsSectionProps) {
+  const navigate = useNavigate();
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -61,6 +63,7 @@ export default function AboutUsSection({ children }: AboutUsSectionProps) {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.98 }}
+          onClick={() => navigate('/about-us')}
           className="bg-blue-500 cursor-pointer hover:bg-blue-500/80 duration-200 ease-in-out py-2 px-5 text-sm lg:text-base lg:py-4 lg:px-12 rounded-4xl text-white font-medium"
         >
           Read More

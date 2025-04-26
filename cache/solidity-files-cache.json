@@ -2,17 +2,18 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/phanquixuan/Dev/workspace-for-react/healcare-block-chain/contracts/MedicalRecords.sol": {
-      "lastModificationDate": 1744173895008,
-      "contentHash": "1cb71849191b28c4b92c814cb04c65b8",
+      "lastModificationDate": 1745572157563,
+      "contentHash": "59655a92e0653956a6de21aa5cef0f02",
       "sourceName": "contracts/MedicalRecords.sol",
       "solcConfig": {
         "version": "0.8.28",
         "settings": {
-          "evmVersion": "paris",
+          "viaIR": true,
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -46,11 +47,12 @@
       "solcConfig": {
         "version": "0.8.28",
         "settings": {
-          "evmVersion": "paris",
+          "viaIR": true,
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [
@@ -84,11 +86,12 @@
       "solcConfig": {
         "version": "0.8.28",
         "settings": {
-          "evmVersion": "paris",
+          "viaIR": true,
           "optimizer": {
-            "enabled": false,
+            "enabled": true,
             "runs": 200
           },
+          "evmVersion": "paris",
           "outputSelection": {
             "*": {
               "*": [

@@ -1,98 +1,196 @@
-import { motion } from "framer-motion";
-import useFetchRecord from "./utils/useFetchRecordById";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Card, CardContent } from "../ui/card";
+import { User } from "lucide-react";
+import useFetchAllRecords from "./utils/useFetchAllRecords";
+import { fetchAndDecryptFiles } from "@/utils/encryption";
+import { useParams } from "react-router";
+import ImageSlider from "./components/image-slider";
 import GrantRevokeAccess from "./GrantRevokeAccess";
 
-export default function RecordOwnershipCheck() {
-  const [recordId, setRecordId] = useState<string>("");
-  const { record, loading, error, fetchRecord } = useFetchRecord(recordId);
+type MedicalRecordProps = {
+  patient: {
+    name: string;
+    age: number;
+    gender: string;
+  };
+  summary: {
+    conditions: string[];
+    allergies: string[];
+    medications: string[];
+  };
+  vitals: {
+    bloodPressure: string;
+    heartRate: string;
+    temperature: string;
+  };
+  recentVisit: {
+    date: string;
+    reason: string;
+    notes: string;
+  };
+  labResult: {
+    testName: string;
+    result: string;
+    date: string;
+  };
+  prescription: {
+    name: string;
+    dosage: string;
+    prescribedDate: string;
+  };
+  nextAppointment?: {
+    date: string;
+    doctor: string;
+  };
+};
+
+const mockData = {
+  patient: {
+    name: "John Doe",
+    age: 30,
+    gender: "Male",
+  },
+  summary: {
+    conditions: ["Hypertension"],
+    allergies: ["Penicillin"],
+    medications: ["Aspirin"],
+  },
+  vitals: {
+    bloodPressure: "120/80",
+    heartRate: "72 bpm",
+    temperature: "98.6°F",
+  },
+  recentVisit: {
+    date: "2025-04-10",
+    reason: "Routine check-up",
+    notes: "Patient is in good health.",
+  },
+  labResult: {
+    testName: "Blood Test",
+    result: "Normal",
+    date: "2025-04-09",
+  },
+  prescription: {
+    name: "Vitamin D",
+    dosage: "5000 IU daily",
+    prescribedDate: "2025-04-10",
+  },
+  nextAppointment: {
+    date: "2025-05-10",
+    doctor: "Dr. Smith",
+  },
+};
+
+export const RecordDetail: React.FC<Partial<MedicalRecordProps>> = (props) => {
+  const { summary, recentVisit, labResult, prescription, nextAppointment } = {
+    ...mockData,
+    ...props,
+  };
+
+  const { records } = useFetchAllRecords();
+  const { recordID } = useParams();
+
+  const currentRecord = records.find((rec) => rec.id === recordID);
+
+  const [decryptedImageUrls, setDecryptedImageUrls] = useState<{
+    [key: string]: string[];
+  }>({});
+
+  useEffect(() => {
+    if (!currentRecord) return;
+
+    const decryptImages = async () => {
+      const secretKey = import.meta.env.VITE_SECRET_KEY;
+
+      const newDecryptedImageUrls: { [key: string]: string[] } = {};
+
+      const decryptedFiles = await fetchAndDecryptFiles(
+        currentRecord.cids,
+        secretKey
+      );
+      newDecryptedImageUrls[currentRecord.id] = decryptedFiles;
+
+      setDecryptedImageUrls(newDecryptedImageUrls);
+    };
+
+    if (currentRecord.cids.length > 0) {
+      decryptImages();
+    }
+  }, [currentRecord]);
+
+  if (!currentRecord || !decryptedImageUrls[currentRecord.id] || !recordID) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <div className="flex flex-col md:flex-row mt-24 justify-center mx-auto gap-6 px-4">
-      <motion.div
-        className="p-6 w-full md:w-2/3 bg-white rounded-lg shadow-xl h-auto overflow-y-auto"
-        initial={{ opacity: 0, x: -100 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-6">
-          Check Record
-        </h1>
-
-        <div className="mb-6 flex flex-col items-center space-y-4">
-          <input
-            type="text"
-            value={recordId}
-            onChange={(e) => setRecordId(e.target.value)}
-            placeholder="Enter Record ID"
-            className="w-full max-w-md p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-          />
-          <button
-            onClick={fetchRecord}
-            disabled={loading || !recordId}
-            className="w-full max-w-md p-3 bg-blue-600 text-white font-semibold rounded-md shadow-lg hover:bg-blue-700 transition-all"
-          >
-            {loading ? "Loading..." : "Fetch Record"}
-          </button>
-        </div>
-
-        {error && <div className="text-red-500 text-center mt-4">{error}</div>}
-
-        {record && !loading && !error && (
-          <div className="mt-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-              Record Details
-            </h2>
-            <div className="text-lg mb-2">
-              <p>
-                <strong className="font-semibold">Owner:</strong> {record.owner}
-              </p>
-              <p className="font-semibold text-green-500">
-                You are the owner of this record
-              </p>
-            </div>
-            <p className="text-lg mb-4">
-              <strong className="font-semibold">Description:</strong>{" "}
-              {record.description}
-            </p>
-
-            <div className="mt-6 border-t border-gray-300 pt-4">
-              <h3 className="text-xl font-semibold mb-4">Images</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {record.cids.map((cid, index) => (
-                  <motion.div
-                    key={index}
-                    className="w-full"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{
-                      type: "spring",
-                      stiffness: 300,
-                      duration: 0.5,
-                    }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                  >
-                    <img
-                      src={`${import.meta.env.VITE_IPFS_GATEWAY_URL}${cid}`}
-                      alt={`Record Image ${index}`}
-                      className="w-full max-w-40 max-h-64 rounded-lg shadow-md object-cover transition-all duration-300 ease-in-out"
-                      onError={(e) =>
-                        (e.currentTarget.src =
-                          "https://via.placeholder.com/300")
-                      }
-                    />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+    <div className="flex gap-10 justify-center">
+      <Card className="basis-2/3 flex-1 p-4 rounded-2xl mt-24 mb-10 shadow-md w-full max-w-xl ">
+        <CardContent className="space-y-4">
+          <div className="text-xl font-semibold flex items-center gap-2">
+            <User className="w-5 h-5" />
+            {currentRecord?.patientName}, {currentRecord?.patientAge} (
+            {currentRecord?.patientGender})
           </div>
-        )}
-      </motion.div>
 
-      {/* Right Section - Grant/Revoke Access */}
-      <GrantRevokeAccess recordId={recordId} />
+          <div className="space-y-1">
+            <h3 className="text-base font-medium">🩺 Summary</h3>
+            <p>
+              <strong>Conditions:</strong> {summary.conditions.join(", ")}
+            </p>
+            <p>
+              <strong>Allergies:</strong> {summary.allergies.join(", ")}
+            </p>
+            <p>
+              <strong>Medications:</strong> {summary.medications.join(", ")}
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="text-base font-medium">❤️ Vitals</h3>
+            <p>Blood Pressure: {currentRecord?.vitals.bloodPressure}</p>
+            <p>Heart Rate: {currentRecord?.vitals.heartRate}</p>
+            <p>Temperature: {currentRecord?.vitals.temperature}</p>
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="text-base font-medium">📋 Recent Visit</h3>
+            <p>Date: {recentVisit.date}</p>
+            <p>Reason: {recentVisit.reason}</p>
+            <p>Notes: {recentVisit.notes}</p>
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="text-base font-medium">🧪 Lab Result</h3>
+            <p>
+              {labResult.testName} - {labResult.result} ({labResult.date})
+            </p>
+          </div>
+
+          <div className="space-y-1">
+            <h3 className="text-base font-medium">💊 Prescription</h3>
+            <p>
+              {prescription.name} ({prescription.dosage}) -{" "}
+              {prescription.prescribedDate}
+            </p>
+          </div>
+
+          {nextAppointment && (
+            <div className="space-y-1">
+              <h3 className="text-base font-medium">📅 Next Appointment</h3>
+              <p>
+                {nextAppointment.date} with Dr. {nextAppointment.doctor}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+      <div className="flex flex-col mt-24 basis-1/3 justify-between pb-10">
+        <ImageSlider
+          images={decryptedImageUrls[currentRecord.id] || []}
+          title="Medical Images"
+        />
+        <GrantRevokeAccess recordId={recordID} />
+      </div>
     </div>
   );
-}
+};
