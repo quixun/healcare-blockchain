@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Controller, useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 type AppointmentFormData = {
   name: string;
@@ -36,7 +37,10 @@ export default function ApointmentSection() {
     formState: { errors },
   } = useForm<AppointmentFormData>();
 
+  const navigate = useNavigate();
+
   const onSubmit = (data: AppointmentFormData) => {
+    navigate("/confirm-book-appointment");
     console.log("Submitted Data:", data);
   };
 
