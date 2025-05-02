@@ -17,7 +17,7 @@ const Footer = () => {
           <h2 className="text-xl font-semibold mb-4">Address</h2>
           <div className="flex items-start gap-2 mb-2">
             <MapPin className="w-5 h-5 mt-1" />
-            <p>123 Street, New York, USA</p>
+            <p>5 Street 6 ,Dien Hoa ,Dien Ban ,Quang Nam</p>
           </div>
           <div className="flex items-center gap-2 mb-2">
             <Phone className="w-5 h-5" />
@@ -25,7 +25,7 @@ const Footer = () => {
           </div>
           <div className="flex items-center gap-2 mb-4">
             <Mail className="w-5 h-5" />
-            <p>name@domain.com</p>
+            <p>quixuandeptryyy@gmail.com</p>
           </div>
           <div className="flex gap-3">
             <Twitter className="w-6 h-6 cursor-pointer hover:text-blue-400" />

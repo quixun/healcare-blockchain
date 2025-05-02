@@ -3,6 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
 import { saveUserInfo, getUserInfo, Gender } from "../../services/user-service";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAppDispatch } from "@/features/hooks";
+import { logout } from "@/features/account/accountSlice";
 
 const genderMap = {
   [Gender.MALE]: "Nam",
@@ -14,6 +16,8 @@ export default function AccountPage() {
   const { address, balance, nonce } = useSelector(
     (state: RootState) => state.account
   );
+
+  const dispatch = useAppDispatch();
 
   const [editMode, setEditMode] = useState(false);
   const [userInfo, setUserInfo] = useState({
@@ -46,6 +50,10 @@ export default function AccountPage() {
   useEffect(() => {
     fetchUserInfo();
   }, [fetchUserInfo]);
+
+  const handleLogout = () => {
+    dispatch(logout());
+  };
 
   const handleUpdateProfile = async () => {
     if (!address) return setMessage("Bạn chưa đăng nhập");
@@ -249,15 +257,26 @@ export default function AccountPage() {
                   <strong>Số lượng giao dịch:</strong>{" "}
                   {nonce || "Chưa cập nhật"}
                 </p>
-                <motion.button
-                  onClick={() => setEditMode(true)}
-                  className="mt-6 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  Chỉnh sửa thông tin
-                </motion.button>
+                <div className="flex gap-3 ">
+                  <motion.button
+                    onClick={() => setEditMode(true)}
+                    className="mt-6 bg-green-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    Edit Profile
+                  </motion.button>
+                  <motion.button
+                    onClick={handleLogout}
+                    className="mt-6 bg-red-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    Log Out
+                  </motion.button>
+                </div>
               </motion.div>
             )}
           </motion.div>
