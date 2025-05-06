@@ -31,15 +31,11 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
       const contract = await getContract();
       if (!contract) throw new Error("Contract not found");
 
-      console.log(
-        `Granting access to ${address} for ${durationInSeconds} seconds`
-      );
       const tx = await contract.grantAccess(
         recordId,
         address,
         durationInSeconds
       );
-      console.log("Transaction sent:", tx);
       await tx.wait();
       alert(`Access granted to ${address} for ${durationInSeconds} seconds`);
     } catch (error) {

@@ -42,13 +42,13 @@ function ImageSlider({ images, title }: { images: string[]; title: string }) {
           <>
             <button
               onClick={prev}
-              className="absolute top-1/2 left-2 -translate-y-1/2 bg-gray-700 text-white py-1 px-2 rounded-full"
+              className="absolute top-1/2 left-2 cursor-pointer -translate-y-1/2 bg-gray-700 text-white py-1 px-2 rounded-full"
             >
               ◀
             </button>
             <button
               onClick={next}
-              className="absolute top-1/2 right-2 -translate-y-1/2 bg-gray-700 text-white py-1 px-2 rounded-full"
+              className="absolute top-1/2 right-2 cursor-pointer -translate-y-1/2 bg-gray-700 text-white py-1 px-2 rounded-full"
             >
               ▶
             </button>
@@ -133,7 +133,7 @@ export default function UserRecordsList() {
                     return (
                       <motion.div
                         key={`${rec.id}-${rec.cids}`}
-                        className="p-4 bg-gray-100 rounded-lg shadow-md flex flex-col justify-between h-[450px]"
+                        className="p-4 bg-gray-100 rounded-lg shadow-md flex flex-col justify-between h-full md:h-[550px]"
                         whileHover={{ scale: 1.05 }}
                         transition={{
                           type: "spring",
@@ -183,25 +183,29 @@ export default function UserRecordsList() {
             </motion.div>
           </AnimatePresence>
 
-          <div className="flex justify-center items-center mt-16">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              disabled={currentPage === 1}
-              className="p-2 cursor-pointer disabled:cursor-not-allowed bg-gray-300 text-gray-700 rounded-md mx-2 disabled:opacity-50"
-            >
-              Prev
-            </button>
-            <span className="text-gray-700 font-semibold">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              disabled={currentPage === totalPages}
-              className="p-2 bg-gray-300 cursor-pointer disabled:cursor-not-allowed text-gray-700 rounded-md mx-2 disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+          {totalPages !== 1 && (
+            <div className="flex justify-center items-center mt-16">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className="p-2 cursor-pointer disabled:cursor-not-allowed bg-gray-300 text-gray-700 rounded-md mx-2 disabled:opacity-50"
+              >
+                Prev
+              </button>
+              <span className="text-gray-700 font-semibold">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
+                disabled={currentPage === totalPages}
+                className="p-2 bg-gray-300 cursor-pointer disabled:cursor-not-allowed text-gray-700 rounded-md mx-2 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </motion.div>
       </div>
       <div className="flex-1 flex justify-center items-center relative">

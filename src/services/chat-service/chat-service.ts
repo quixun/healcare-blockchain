@@ -120,7 +120,6 @@ export const deleteConversationFromFirestore = async (
     await updateDoc(userDocRef, {
       [conversationId]: [], // Clear messages in this conversation
     });
-    console.log(`Conversation ${conversationId} deleted.`);
   } catch (error) {
     console.error("Error deleting conversation:", error);
   }

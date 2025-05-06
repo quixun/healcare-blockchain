@@ -46,10 +46,8 @@ const ViewRecordIfAccessGranted = ({
       // If the access has not expired
       if (expiryTime > Math.floor(Date.now() / 1000)) {
         setAccessGranted(true);
-        console.log(`Access granted to ${userAddress} for record ${recordId}`);
       } else {
         setAccessGranted(false);
-        console.log("Access expired or not granted.");
       }
     } catch (err) {
       setError("Failed to check access");

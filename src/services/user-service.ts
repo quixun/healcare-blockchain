@@ -8,10 +8,8 @@ export const saveUserName = async (
 ): Promise<void> => {
   try {
     await setDoc(doc(db, "users", address.toLowerCase()), { userName });
-    console.log("User name saved successfully");
   } catch (error) {
-    console.error("Error saving user name: ", error);
-    throw new Error("Failed to save user name.");
+    throw new Error("Failed to save user name." + error);
   }
 };
 
@@ -56,9 +54,9 @@ export interface UserInfo {
 }
 
 export enum Gender {
-  MALE = 'male',
-  FEMALE = 'female',
-  OTHER = 'other',
+  MALE = "male",
+  FEMALE = "female",
+  OTHER = "other",
 }
 
 // Fetch user information by address

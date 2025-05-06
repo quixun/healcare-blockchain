@@ -151,19 +151,45 @@ const Header: React.FC = () => {
                   className="absolute top-20 right-6 bg-white text-blue-600 rounded-lg shadow-lg p-4 flex flex-col space-y-2"
                 >
                   {navItems.map((item) => (
-                    <button
-                      key={item.label}
-                      onClick={() => {
-                        if (item.path) {
-                          navigate(item.path);
-                        }
-                        setIsMenuOpen(false);
-                      }}
-                      className="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
-                    >
-                      <span>{item.label}</span>
-                    </button>
+                    <div key={item.label} className="relative group">
+                      <button
+                        onClick={() => {
+                          if (item.path) {
+                            navigate(item.path);
+                            setIsMenuOpen(false);
+                          }
+                        }}
+                        className="flex items-center cursor-pointer justify-between w-full px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+                      >
+                        <span>{item.label}</span>
+                      </button>
+
+                      {/* Submenu */}
+                      {item.subItems && (
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -20 }}
+                          transition={{ duration: 0.3 }}
+                          className="absolute top-0 right-full ml-2 w-48 bg-white rounded-lg shadow-lg p-2 space-y-1 z-50 hidden group-hover:block"
+                        >
+                          {item.subItems.map((sub) => (
+                            <button
+                              key={sub.label}
+                              onClick={() => {
+                                navigate(sub.path || "/");
+                                setIsMenuOpen(false);
+                              }}
+                              className="w-full text-left cursor-pointer px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+                            >
+                              {sub.label}
+                            </button>
+                          ))}
+                        </motion.div>
+                      )}
+                    </div>
                   ))}
+
                   <button
                     className="bg-red-500 px-4 py-2 rounded-lg text-white hover:bg-red-700 transition"
                     onClick={handleLogout}

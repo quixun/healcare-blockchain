@@ -171,31 +171,32 @@ export default function PaymentModal({
                     className="text-xl font-bold text-center mb-4"
                     variants={contentVariants}
                   >
-                    Xác nhận thanh toán
+                    Confirm Payment
                   </motion.h2>
 
                   <motion.div className="space-y-4" variants={contentVariants}>
                     <div>
-                      <p className="text-sm text-gray-500">Sản phẩm</p>
+                      <p className="text-sm text-gray-500">Product</p>
                       <p className="font-medium">{product.name}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Số lượng ETH</p>
+                      <p className="text-sm text-gray-500">Amount Of ETH</p>
                       <p className="text-blue-600 font-semibold">
                         {product.price} ETH
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Địa chỉ ví</p>
+                      <p className="text-sm text-gray-500">Wallet Address</p>
                       <input
                         type="text"
                         value={recipient}
+                        readOnly
                         onChange={(e) => setRecipient(e.target.value)}
-                        className="w-full font-mono text-sm bg-gray-100 p-2 rounded"
+                        className="w-full font-mono text-sm bg-gray-100 pointer-events-none select-none p-2 rounded"
                       />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
+                      <p className="text-sm text-gray-500">Delivery Address</p>
                       <textarea
                         value={deliveryAddress}
                         onChange={(e) => setDeliveryAddress(e.target.value)}
@@ -217,7 +218,7 @@ export default function PaymentModal({
                     }
                     variants={contentVariants}
                   >
-                    {loading ? "Đang xử lý…" : "Gửi thanh toán"}
+                    {loading ? "Handling..." : "Pay"}
                   </motion.button>
                 </motion.div>
               ) : (

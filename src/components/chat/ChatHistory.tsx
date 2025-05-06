@@ -118,7 +118,7 @@ const ChatHistory = ({
   return (
     <motion.div
       animate={{ width: getWidth() }}
-      className="absolute left-0 top-0 bg-white rounded-lg shadow-xl h-full max-w-lg flex flex-col"
+      className="absolute left-0 top-1 bg-white rounded-lg shadow-xl h-full max-w-lg flex flex-col"
     >
       <button
         onClick={() => setIsOpen(!isOpen)}
@@ -130,7 +130,7 @@ const ChatHistory = ({
       {isOpen && (
         <div className="p-3 flex flex-col h-full">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-semibold">Lịch sử chat</h2>
+            <h2 className="text-lg font-semibold">Conservation History</h2>
             <button
               onClick={handleNewConversation}
               className="bg-blue-500 duration-200 cursor-pointer ease-in-out text-white p-2 rounded-full shadow-md hover:bg-blue-600 transition"

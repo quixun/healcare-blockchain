@@ -38,6 +38,31 @@ const useFetchSharedMedicalRecords = () => {
     return `${h}h ${m}m ${s}s`;
   };
 
+  const getContract = useCallback(async () => {
+    if (!address) return null;
+    const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+    const signer = await provider.getSigner(address);
+    return new ethers.Contract(contractAddress, ACCESS_CONTROL_ABI, signer);
+  }, [address]);
+
+  const revokeExpiredAccess = useCallback(
+    async (recordId: string, userAddress: string) => {
+      try {
+        const contract = await getContract();
+        if (contract) {
+          const tx = await contract.revokeAccess(recordId, userAddress);
+          await tx.wait();
+          console.log(
+            `Revoked expired access for ${userAddress} on ${recordId}`
+          );
+        }
+      } catch (err) {
+        console.warn(`Failed to auto-revoke for ${userAddress}:`, err);
+      }
+    },
+    [getContract]
+  );
+
   const fetchRecords = useCallback(async () => {
     if (!address) return;
 
@@ -110,22 +135,36 @@ const useFetchSharedMedicalRecords = () => {
     fetchRecords();
   }, [fetchRecords]);
 
-  // 3) update remainingTime every second
   useEffect(() => {
-    const iv = setInterval(() => {
-      setRecords((prev) =>
-        prev.map((r) => {
+    if (address) {
+      const iv = setInterval(async () => {
+        setRecords((prev) => {
           const now = Math.floor(Date.now() / 1000);
-          const secs = r.expiryTime - now;
-          return {
-            ...r,
-            remainingTime: formatRemainingTime(secs),
-          };
-        })
-      );
-    }, 1000);
-    return () => clearInterval(iv);
-  }, []);
+
+          const updated = prev.filter((r) => {
+            const secs = r.expiryTime - now;
+
+            if (secs <= 0 && r.remainingTime !== "Expired") {
+              // Trigger async revoke but don’t wait for it here
+              revokeExpiredAccess(r.id, address);
+            }
+
+            // Keep only unexpired records
+            return secs > 0;
+          });
+
+          return updated.map((r) => {
+            const secs = r.expiryTime - now;
+            return {
+              ...r,
+              remainingTime: formatRemainingTime(secs),
+            };
+          });
+        });
+      }, 1000);
+      return () => clearInterval(iv);
+    }
+  }, [address, revokeExpiredAccess]);
 
   return { records, loading, error, fetchRecords };
 };

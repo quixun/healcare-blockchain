@@ -27,19 +27,19 @@ const Transfer: React.FC = () => {
 
   const handleSendClick = () => {
     if (!recipient) {
-      setAlertMessage("Vui lòng nhập địa chỉ ví của người nhận.");
+      setAlertMessage("Please enter reciever address.");
       setIsAlertModalOpen(true);
       return;
     }
 
     if (!amount) {
-      setAlertMessage("Vui lòng nhập số tiền cần chuyển.");
+      setAlertMessage("Please enter amount of money.");
       setIsAlertModalOpen(true);
       return;
     }
 
     if (transferMessage === "") {
-      setAlertMessage("Vui lòng nhập thông tin chuyển tiền.");
+      setAlertMessage("Please enter transfer info.");
       setIsAlertModalOpen(true);
       return;
     }
@@ -56,19 +56,19 @@ const Transfer: React.FC = () => {
   const handleTransfer = async () => {
     try {
       if (!address) {
-        setMessage("Bạn chưa đăng nhập.");
+        setMessage("Please login.");
         setIsSuccess(false);
         return;
       }
 
       if (!web3.utils.isAddress(recipient)) {
-        setMessage("Địa chỉ ví không hợp lệ.");
+        setMessage("Invalid recipient address.");
         setIsSuccess(false);
         return;
       }
 
       if (!/^\d*\.?\d+$/.test(amount) || parseFloat(amount) <= 0) {
-        setMessage("Số tiền không hợp lệ. Vui lòng nhập số dương.");
+        setMessage("Invalid amount of money.");
         setIsSuccess(false);
         return;
       }
@@ -95,16 +95,16 @@ const Transfer: React.FC = () => {
         })
       );
 
-      setMessage("Chuyển tiền thành công!");
+      setMessage("Transfer successfully");
       setIsSuccess(true);
       setRecipient("");
       setAmount("");
       setTransferMessage("");
     } catch (error: unknown) {
       if (error instanceof Error) {
-        setMessage("Giao dịch thất bại: " + error.message);
+        setMessage("Transfer faild because: " + error.message);
       } else {
-        setMessage("Giao dịch thất bại: Lỗi không xác định.");
+        setMessage("Transfer faild");
       }
       setIsSuccess(false);
     } finally {
@@ -113,7 +113,7 @@ const Transfer: React.FC = () => {
   };
 
   return (
-    <div className="my-20">
+    <div className="my-10">
       <div className="flex-1 flex justify-center items-center relative">
         <motion.div
           className="relative z-30 w-full max-w-lg h-full max-h-[950px] px-9 pt-16 rounded-lg"
@@ -122,7 +122,7 @@ const Transfer: React.FC = () => {
           transition={{ duration: 0.5 }}
         >
           <h2 className="text-4xl font-bold text-black text-center mb-4">
-            Chuyển tiền
+            Transfer Money
           </h2>
           {message && (
             <motion.p
@@ -141,7 +141,7 @@ const Transfer: React.FC = () => {
             transition={{ delay: 0.3, duration: 0.3 }}
           >
             <label className="block font-medium text-black">
-              Địa chỉ ví nhận:
+              Recipient Address
             </label>
             <input
               type="text"
@@ -157,7 +157,7 @@ const Transfer: React.FC = () => {
             transition={{ delay: 0.4, duration: 0.3 }}
           >
             <label className="block font-medium text-black">
-              Số tiền (ETH):
+              Money (ETH):
             </label>
             <input
               type="text"
@@ -173,7 +173,7 @@ const Transfer: React.FC = () => {
             transition={{ delay: 0.5, duration: 0.3 }}
           >
             <label className="block font-medium text-black">
-              Thông tin chuyển tiền:
+              Transfer Information:
             </label>
             <input
               type="text"

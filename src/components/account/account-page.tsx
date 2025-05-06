@@ -1,10 +1,20 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
 import { saveUserInfo, getUserInfo, Gender } from "../../services/user-service";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch } from "@/features/hooks";
 import { logout } from "@/features/account/accountSlice";
+import Web3Service from "@/services/web3Service";
+import Modal from "../common/modal";
+import { Plus } from "lucide-react";
+import { create } from "ipfs-http-client";
 
 const genderMap = {
   [Gender.MALE]: "Nam",
@@ -16,6 +26,14 @@ export default function AccountPage() {
   const { address, balance, nonce } = useSelector(
     (state: RootState) => state.account
   );
+  const web3 = Web3Service.getInstance().getWeb3();
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const toggleModal = useCallback(() => {
+    setIsModalOpen(!isModalOpen);
+  }, [isModalOpen]);
 
   const dispatch = useAppDispatch();
 
@@ -61,14 +79,14 @@ export default function AccountPage() {
     try {
       setLoading(true);
       await saveUserInfo(address, userInfo);
-      setMessage("Cập nhật thông tin thành công!");
+      setMessage("Updated successfully!");
       setEditMode(false);
       fetchUserInfo();
 
       setFadeOut(false);
       setTimeout(() => setFadeOut(true), 3000);
     } catch (error) {
-      setMessage(`Có lỗi xảy ra khi cập nhật thông tin,${error}`);
+      setMessage(`Failed,${error}`);
     } finally {
       setLoading(false);
     }
@@ -81,22 +99,124 @@ export default function AccountPage() {
     []
   );
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      const selectedFile = e.target.files[0];
+
+      // Upload the image immediately after selecting it
+      await uploadToIPFS(selectedFile);
+    }
+  };
+
+  // Upload image to IPFS
+  const uploadToIPFS = async (file: File) => {
+    try {
+      const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
+      const added = await ipfs.add(file);
+      const cid = added.path; // Get the CID of the uploaded file
+
+      // Save the CID to the blockchain and sync the uploaded images
+      await saveToBlockchain(cid);
+    } catch (error) {
+      console.error("Error uploading to IPFS:", error);
+    }
+  };
+
+  // Save the CID to the blockchain and update the uploaded images list
+  const saveToBlockchain = async (cid: string) => {
+    try {
+      // Here you would interact with your Web3 service to save the CID
+      const web3 = Web3Service.getInstance().getWeb3();
+
+      if (!address) return;
+
+      const imageData = `IMG:${cid}`;
+      await web3.eth.sendTransaction({
+        from: address,
+        to: address,
+        data: web3.utils.asciiToHex(imageData),
+      });
+
+      // Update the uploaded images list
+      setUploadedImages((prevImages) => [cid, ...prevImages]);
+
+      alert("Image uploaded and CID saved to blockchain!");
+      toggleModal(); // Close the modal after upload
+    } catch (error) {
+      console.error("Error saving CID to blockchain:", error);
+    }
+  };
+
   const handleAvatarChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-        const imageUrl = URL.createObjectURL(file);
-        handleChange("avatarUrl", imageUrl);
+    (cid: string) => {
+      if (cid) {
+        handleChange("avatarUrl", cid);
       }
-      e.target.value = "";
+      toggleModal();
     },
-    [handleChange]
+    [handleChange, toggleModal]
   );
+
+  const fetchUploadedImages = useCallback(async (): Promise<string[]> => {
+    try {
+      if (!address) return [];
+
+      const latestBlock = await web3.eth.getBlockNumber();
+      const images: string[] = [];
+
+      for (
+        let i = latestBlock;
+        i >= Math.max(Number(latestBlock) - 100, 0);
+        i--
+      ) {
+        const block = await web3.eth.getBlock(i, true);
+
+        block.transactions.forEach((tx) => {
+          if (
+            typeof tx === "object" &&
+            tx.from?.toLowerCase() === address.toLowerCase() &&
+            tx.input !== "0x"
+          ) {
+            try {
+              if (!tx.input) return;
+              const decodedInput = web3.utils.hexToUtf8(tx.input);
+
+              if (decodedInput.startsWith("IMG:")) {
+                const cid = decodedInput.replace("IMG:", "");
+                images.push(cid);
+              }
+            } catch (error) {
+              console.error("Error decoding transaction input:", error);
+            }
+          }
+        });
+      }
+
+      setUploadedImages(images);
+      return images;
+    } catch (error) {
+      console.error("Error fetching uploaded images:", error);
+      return [];
+    }
+  }, [address, web3.eth, web3.utils]);
+
+  useEffect(() => {
+    const fetchUploadedImage = async () => {
+      try {
+        const images = await fetchUploadedImages();
+        setUploadedImages(images);
+      } catch (error) {
+        console.error("Error fetching uploaded images:", error);
+      }
+    };
+
+    fetchUploadedImage();
+  }, [fetchUploadedImages]);
 
   const maskedAddress = useMemo(() => {
     return address
       ? `${address.slice(0, 6)}...${address.slice(-4)}`
-      : "Chưa đăng nhập";
+      : "let login";
   }, [address]);
 
   return (
@@ -118,14 +238,16 @@ export default function AccountPage() {
             transition={{ duration: 0.5 }}
           >
             <h2 className="text-3xl font-bold text-gray-800 mb-6">
-              Thông Tin Cá Nhân
+              Personal Information
             </h2>
 
             {userInfo.avatarUrl && (
               <motion.img
-                src={userInfo.avatarUrl}
+                src={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${
+                  userInfo.avatarUrl
+                }`}
                 alt="Avatar"
-                className="w-32 h-32 rounded-full mx-auto mb-4"
+                className="w-44 h-44 rounded-full mx-auto mb-4"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5 }}
@@ -156,21 +278,21 @@ export default function AccountPage() {
                       <div className="mb-4 text-left" key={key}>
                         <label className="block font-medium">
                           {key === "userName"
-                            ? "Tên chủ sở hữu:"
+                            ? "Owner:"
                             : key === "bio"
-                            ? "Giới thiệu:"
+                            ? "Bio:"
                             : key === "email"
                             ? "Email:"
                             : key === "phoneNumber"
-                            ? "Số điện thoại:"
+                            ? "Phone Number:"
                             : key === "dateOfBirth"
-                            ? "Ngày sinh:"
+                            ? "Date Of Birth:"
                             : key === "gender"
-                            ? "Giới tính:"
+                            ? "Gender:"
                             : key === "location"
-                            ? "Địa chỉ:"
+                            ? "Address:"
                             : key === "occupation"
-                            ? "Nghề nghiệp:"
+                            ? "Career:"
                             : ""}
                         </label>
                         {key === "gender" ? (
@@ -208,13 +330,13 @@ export default function AccountPage() {
                 )}
 
                 <div className="mb-4 text-left">
-                  <label className="block font-medium">Ảnh đại diện:</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
+                  <label className="block font-medium">Avatar:</label>
+                  <button
                     className="w-full border px-3 py-2 rounded-lg"
-                  />
+                    onClick={toggleModal}
+                  >
+                    Choose your avatar
+                  </button>
                 </div>
 
                 <motion.button
@@ -227,6 +349,46 @@ export default function AccountPage() {
                 >
                   {loading ? "Đang lưu..." : "Lưu thông tin"}
                 </motion.button>
+                <Modal
+                  isOpen={isModalOpen}
+                  onClose={toggleModal}
+                  title="Select an Image"
+                >
+                  <div className="flex h-[70%] justify-center items-center w-full flex-wrap gap-2 overflow-auto">
+                    {/* Show uploaded images with animation */}
+                    {uploadedImages.map((url, index) => (
+                      <motion.img
+                        key={index}
+                        src={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${url}`}
+                        alt={`Uploaded image ${index}`}
+                        className="object-contain max-h-[150px] max-w-[150px] rounded-md cursor-pointer"
+                        initial={{ opacity: 0, scale: 1.2 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.3 }}
+                        whileHover={{ scale: 1.1 }}
+                        onClick={() => handleAvatarChange(url)}
+                      />
+                    ))}
+
+                    <button
+                      className="w-30 h-30 flex justify-center hover:bg-gray-200 duration-150 ease-in-out items-center bg-gray-100 rounded-md border border-dashed cursor-pointer"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Plus
+                        size={32}
+                        className="text-gray-500 hover:text-gray-700"
+                      />
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        className="hidden"
+                      />
+                    </button>
+                  </div>
+                </Modal>
               </>
             ) : (
               <motion.div
@@ -237,24 +399,24 @@ export default function AccountPage() {
                 transition={{ duration: 0.5 }}
               >
                 <p className="text-gray-600">
-                  <strong>Tên chủ sở hữu:</strong>{" "}
+                  <strong>Onwer:</strong>{" "}
                   {userInfo.userName || "Chưa đăng nhập"}
                 </p>
                 <p className="text-gray-600">
-                  <strong>Địa chỉ ví:</strong> {maskedAddress}
+                  <strong>Wallet Address:</strong> {maskedAddress}
                 </p>
                 <p className="text-gray-600">
                   <strong>Email:</strong> {userInfo.email || "Chưa cập nhật"}
                 </p>
                 <p className="text-gray-600">
-                  <strong>Số điện thoại:</strong>{" "}
+                  <strong>Phone Number:</strong>{" "}
                   {userInfo.phoneNumber || "Chưa cập nhật"}
                 </p>
                 <p className="text-gray-600">
-                  <strong>Số dư:</strong> {balance || "Chưa cập nhật"}
+                  <strong>Balance:</strong> {balance || "Chưa cập nhật"}
                 </p>
                 <p className="text-gray-600">
-                  <strong>Số lượng giao dịch:</strong>{" "}
+                  <strong>Amount of nonces:</strong>{" "}
                   {nonce || "Chưa cập nhật"}
                 </p>
                 <div className="flex gap-3 ">

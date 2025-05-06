@@ -53,7 +53,7 @@ const featureVariants = {
 
 export default function FeaturesSection({ image }: FeaturesSectionProps) {
   return (
-    <div className="relative w-full mb-20">
+    <div className="relative w-full h-full overflow-hidden">
       <img
         src={image ?? "/images/banner1.jpg"}
         alt="Why Choose Us"

@@ -16,7 +16,7 @@ const settings = {
   dots: false,
   draggable: true,
   swipeToSlide: true,
-  speed: 1700,
+  speed: 3000,
   slidesToShow: 4,
   autoplay: true,
   autoplaySpeed: 0,

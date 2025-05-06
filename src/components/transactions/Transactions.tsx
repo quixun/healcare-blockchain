@@ -21,16 +21,16 @@ const decodeMessage = (input: string, web3: Web3) => {
     try {
       return web3.utils.hexToUtf8(input);
     } catch {
-      return "Không thể giải mã.";
+      return "Can not decript.";
     }
   }
-  return "Không có tin nhắn.";
+  return "There are not any message.";
 };
 
 const formatTimestamp = (timestamp?: number) =>
   timestamp
     ? new Date(timestamp * 1000).toLocaleString()
-    : "Không rõ thời gian";
+    : "Unknown time";
 
 const formatDate = (timestamp?: number) =>
   timestamp ? new Date(timestamp * 1000).toLocaleDateString() : "Unknown date";
@@ -146,7 +146,7 @@ const Transactions = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Lịch sử giao dịch
+            Transaction History
           </motion.h2>
           {Object.keys(groupedTransactions).length > 0 ? (
             Object.entries(groupedTransactions).map(([date, txs]) => (
@@ -161,7 +161,7 @@ const Transactions = () => {
                   )} ETH`;
                   const userDisplayName = isSent
                     ? userNames[tx.to ?? ""] || tx.to
-                    : "Tiền chuyển vào";
+                    : "Transfer money";
 
                   return (
                     <motion.div

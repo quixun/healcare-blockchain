@@ -1,5 +1,5 @@
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useState } from "react";
 import { CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 
 const testimonials = [
@@ -40,29 +40,40 @@ const testimonials = [
   },
 ];
 
-const CARD_WIDTH = 320; // Tailwind w-80 (20rem)
-const GAP = 24; // gap-6 = 1.5rem
-const VISIBLE_CARDS = 3;
-const CENTER_OFFSET = Math.floor(VISIBLE_CARDS / 2);
+// Constants
+const CARD_WIDTH = 320; // px, matches Tailwind w-80
+const GAP = 24; // px, matches Tailwind gap-6
 
 export default function ClientStoriesSection() {
-  // Tracks which testimonial is active (highlighted)
+  // Active (highlighted) testimonial index
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // How many steps we can slide (so that 3 cards always fill the viewport)
-  const maxSlideIndex = testimonials.length - VISIBLE_CARDS;
+  // Number of cards visible based on screen width
+  const [visibleCards, setVisibleCards] = useState(3);
 
-  // Compute how much to translate the row, centering activeIndex when possible
-  const rawOffset = activeIndex - CENTER_OFFSET;
+  // Update visibleCards on resize
+  useEffect(() => {
+    const updateVisible = () => {
+      const w = window.innerWidth;
+      if (w < 768) setVisibleCards(1);
+      else if (w < 1024) setVisibleCards(2);
+      else setVisibleCards(3);
+    };
+    updateVisible();
+    window.addEventListener("resize", updateVisible);
+    return () => window.removeEventListener("resize", updateVisible);
+  }, []);
+
+  // Calculate sliding parameters
+  const maxSlideIndex = testimonials.length - visibleCards;
+  const centerOffset = Math.floor(visibleCards / 2);
+  const rawOffset = activeIndex - centerOffset;
   const slideIndex = Math.max(0, Math.min(rawOffset, maxSlideIndex));
 
-  const next = () => {
+  // Navigation handlers
+  const next = () =>
     setActiveIndex((prev) => Math.min(prev + 1, testimonials.length - 1));
-  };
-
-  const prev = () => {
-    setActiveIndex((prev) => Math.max(prev - 1, 0));
-  };
+  const prev = () => setActiveIndex((prev) => Math.max(prev - 1, 0));
 
   return (
     <section
@@ -77,24 +88,26 @@ export default function ClientStoriesSection() {
           Trusted by Thousands of <br /> Satisfied Customers.
         </h2>
 
-        <div className="">
-          <div className="absolute top-12 right-0 flex gap-2 z-10">
+        <div>
+          {/* Arrow controls */}
+          <div className="absolute top-40 md:top-12 right-0 flex gap-2 z-10">
             <button
               onClick={prev}
-              className="bg-blue-400 cursor-pointer hover:bg-blue-500 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={activeIndex === 0}
             >
-              <ChevronLeft className="w-8 h-8" />
+              <ChevronLeft className="w-4 h-4 md:w-8 md:h-8" />
             </button>
             <button
               onClick={next}
-              className="bg-blue-400 cursor-pointer hover:bg-blue-500 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-blue-400 hover:bg-blue-500 text-white p-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={activeIndex === testimonials.length - 1}
             >
-              <ChevronRight className="w-8 h-8" />
+              <ChevronRight className="w-4 h-4 md:w-8 md:h-8" />
             </button>
           </div>
 
+          {/* Slider container */}
           <div className="overflow-hidden">
             <motion.div
               className="flex gap-6"

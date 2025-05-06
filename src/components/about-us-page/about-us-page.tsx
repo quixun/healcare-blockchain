@@ -9,7 +9,7 @@ const FeaturesSection = lazy(() => import("../home/sections/features-section"));
 
 export default function AboutUsPage() {
   return (
-    <div className="my-20">
+    <div className="mt-20">
       <SubHeader
         title="About Us"
         path="about"
@@ -42,7 +42,7 @@ export default function AboutUsPage() {
 
       <Suspense fallback={<div>Loading Features...</div>}>
         <LazyLoad>
-          <div className="my-5">
+          <div className="h-full my-10">
             <FeaturesSection image="/images/banner2.jpg" />
           </div>
         </LazyLoad>
