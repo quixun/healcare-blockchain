@@ -5,6 +5,7 @@ import SalesBanner from "./medicine-list-sections/sales-banner";
 import PopularMedicines from "./medicine-list-sections/popular-medicine-section";
 import ClientStoriesSection from "./medicine-list-sections/story-client-section";
 import GeneralSection from "./medicine-list-sections/general-section";
+import ProductList from "./medicine-products/get-product/product-lists";
 
 const dealItem: DealItem[] = [
   {
@@ -56,6 +57,7 @@ export default function MedicinesList() {
           <SalesBanner />
         </div>
         <PopularMedicines />
+        <ProductList />
         <ClientStoriesSection />
         <GeneralSection />
       </div>

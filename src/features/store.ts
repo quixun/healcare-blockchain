@@ -1,12 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import acountReducer from "./account/accountSlice";
 import selectedProductReducer from "./product/productSlice";
-// ...
+import appointmentReducer from "./appointment/appointmentSlice";
 
 export const store = configureStore({
   reducer: {
     account: acountReducer,
     product: selectedProductReducer,
+    appointment: appointmentReducer,
   },
 });
 

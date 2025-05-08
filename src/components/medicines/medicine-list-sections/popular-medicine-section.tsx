@@ -98,13 +98,13 @@ const containerVariants = {
   },
 };
 
-function SoldOutModal({
+export const SoldOutModal = ({
   message,
   onClose,
 }: {
   message: string;
   onClose: () => void;
-}) {
+}) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <motion.div
@@ -113,11 +113,11 @@ function SoldOutModal({
         exit={{ opacity: 0, scale: 0.9 }}
         className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
       >
-        <h3 className="text-lg font-semibold text-center mb-4">Thông báo</h3>
+        <h3 className="text-lg font-semibold text-center mb-4">Inform</h3>
         <p className="text-center mb-6">{message}</p>
         <button
           onClick={onClose}
-          className="block mx-auto px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+          className="block mx-auto cursor-pointer px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
         >
           OK
         </button>
@@ -137,7 +137,7 @@ export default function PopularMedicines() {
   const handleCardClick = (product: DealItem) => {
     if (product.isSoldOut) {
       setSoldOutMessage(
-        "Sản phẩm này đã hết hàng, vui lòng chọn sản phẩm khác."
+        "This product is out of stock, please choose another product."
       );
     } else {
       setSelectedDeal(product);
@@ -214,11 +214,11 @@ export default function PopularMedicines() {
 
             <div className="text-center">
               <span className="text-blue-500 font-bold text-lg">
-                {product.price.toFixed(2)} ETH
+                {product.price.toFixed(0)} ETH
               </span>
               {product.oldPrice && (
                 <span className="text-gray-400 line-through ml-2">
-                  {product.oldPrice.toFixed(2)} ETH
+                  {product.oldPrice.toFixed(0)} ETH
                 </span>
               )}
             </div>

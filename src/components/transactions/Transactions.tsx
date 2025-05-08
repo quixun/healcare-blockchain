@@ -63,10 +63,11 @@ const Transactions = () => {
             )
             // 2) stamp the timestamp
             .map((tx) => ({ ...tx, timestamp: Number(block.timestamp) }))
-            // 3) drop messages that start “IMG:”
+            // 3) drop messages that start "IMG:" or "Product:"
             .filter((tx) => {
               try {
-                return !web3.utils.hexToUtf8(tx.input).startsWith("IMG:");
+                const decodedInput = web3.utils.hexToUtf8(tx.input);
+                return !decodedInput.startsWith("IMG:") && !decodedInput.startsWith("Product:");
               } catch {
                 return true;
               }
