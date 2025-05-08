@@ -80,7 +80,7 @@ export default function UpdateProduct() {
 
     if (result?.success) {
       alert("Product updated successfully");
-      navigate("/");
+      navigate("/services/medicines");
     } else {
       alert(result.error || "Update failed");
     }

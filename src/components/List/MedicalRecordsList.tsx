@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useFetchAllRecords from "./utils/useFetchAllRecords";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { fetchAndDecryptFiles } from "@/utils/encryption";
 import SubHeader from "@/layouts/sub-header/sub-header";
 import SharedRecord from "./components/shared-record";

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import useFetchSharedMedicalRecords from "../utils/useFetchSharedMedicalRecords";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { fetchAndDecryptFiles } from "@/utils/encryption";
 import { AnimatePresence, motion } from "framer-motion";
 

@@ -8,6 +8,7 @@ import { ethers } from "ethers";
 import { ABI_UPLOAD_PRODUCT, contractAddress } from "../config";
 import Web3Service from "@/services/web3Service";
 import { useNavigate } from "react-router-dom";
+import Modal from "../../../common/modal";
 
 type Product = {
   id: string;
@@ -50,6 +51,7 @@ const UploadProduct: React.FC = () => {
     rating?: string;
   }>({});
   const [showReview, setShowReview] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const navigate = useNavigate();
 
@@ -157,13 +159,12 @@ const UploadProduct: React.FC = () => {
       const provider = new ethers.JsonRpcProvider(
         import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL
       );
-      const signer = await provider.getSigner();
+      const signer = await provider.getSigner(address);
       const contract = new ethers.Contract(
         contractAddress,
         ABI_UPLOAD_PRODUCT,
         signer
       );
-
       // Call the smart contract to upload the product
       const tx = await contract.uploadProduct(
         formData.name,
@@ -180,7 +181,7 @@ const UploadProduct: React.FC = () => {
       // Wait for the transaction to be mined
       await tx.wait();
 
-      alert("Product uploaded successfully");
+      setShowSuccessModal(true);
       setShowReview(false);
 
       // Reset form state after successful submission
@@ -200,10 +201,9 @@ const UploadProduct: React.FC = () => {
       setPreviewUrl("");
       setErrors({});
 
-      navigate("/services/medicines");
     } catch (error) {
       console.error("Error submitting product:", error);
-      alert(error instanceof Error ? error.message : "Unknown error occurred");
+      setShowSuccessModal(true);
     } finally {
       setLoading(false);
     }
@@ -521,6 +521,25 @@ const UploadProduct: React.FC = () => {
           </div>
         </div>
       )}
+
+      <Modal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Success"
+      >
+        <div className="text-center">
+          <p className="text-lg mb-4">Product uploaded successfully!</p>
+          <button
+            onClick={() => {
+              setShowSuccessModal(false);
+              navigate("/services/medicines");
+            }}
+            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors"
+          >
+            Go to Medicines
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

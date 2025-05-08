@@ -138,7 +138,7 @@ export default function MyProduct() {
                 product.imageCID
               }`}
               alt={product.name}
-              className="mx-auto h-full rounded-t-lg w-full object-contain mb-4"
+              className="mx-auto h-[291px] rounded-t-lg w-full object-contain mb-4"
             />
 
             <div className="flex justify-center mb-2">
@@ -210,19 +210,6 @@ export default function MyProduct() {
         onClose={() => setSelectedProduct(null)}
         onContinue={handleContinue}
       />
-
-      {/* {paymentProduct && (
-        <PaymentModal
-          isOpen={isPaymentOpen}
-          onClose={() => setIsPaymentOpen(false)}
-          onSend={handleSend}
-          product={{
-            name: paymentProduct.name,
-            price: Number(paymentProduct.currentPrice),
-            image: paymentProduct.imageCID,
-          }}
-        />
-      )} */}
 
       {/* Sold-out Notification */}
       {soldOutMessage && (
