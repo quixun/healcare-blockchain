@@ -7,7 +7,7 @@ const AboutUsSection = lazy(() => import("./sections/about-us-section"));
 const FeaturesSection = lazy(() => import("./sections/services-section"));
 const ServicesSection = lazy(() => import("./sections/features-section"));
 const DoctorSection = lazy(() => import("./sections/doctor-section"));
-const ApointmentSection = lazy(() => import("./sections/apointment-section"));
+const AppointmentSection = lazy(() => import("./sections/appointment-section"));
 
 const Home = () => {
   return (
@@ -49,7 +49,7 @@ const Home = () => {
 
       <Suspense fallback={<div>Loading Appointment...</div>}>
         <LazyLoad>
-          <ApointmentSection />
+          <AppointmentSection />
         </LazyLoad>
       </Suspense>
     </div>

@@ -1,5 +1,7 @@
+import { setAppointmentData } from "@/features/appointment/appointmentSlice";
 import { motion } from "motion/react";
 import { Controller, useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 
 type AppointmentFormData = {
@@ -30,7 +32,7 @@ const contactUs = [
   },
 ];
 
-export default function ApointmentSection() {
+export default function AppointmentSection() {
   const {
     control,
     handleSubmit,
@@ -38,10 +40,11 @@ export default function ApointmentSection() {
   } = useForm<AppointmentFormData>();
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const onSubmit = (data: AppointmentFormData) => {
+    dispatch(setAppointmentData(data));
     navigate("/confirm-book-appointment");
-    console.log("Submitted Data:", data);
   };
 
   return (
@@ -84,9 +87,9 @@ export default function ApointmentSection() {
                 <div className="bg-white rounded-full items-center flex justify-center px-2 overflow-hidden h-14 w-14">
                   <img src={item.icon} alt="icon" />
                 </div>
-                <div className="ml-6 flex flex-col items-start justify-start">
+                <div className="ml-6 flex flex-col items-start justify-start w-full overflow-hidden">
                   <p className="mb-2 text-lg text-[#8D8E92]">{item.text}</p>
-                  <p className="text-[#1B2C51] text-xl font-bold">
+                  <p className="text-[#1B2C51] text-xl font-bold whitespace-normal">
                     {item.link}
                   </p>
                 </div>
@@ -101,7 +104,7 @@ export default function ApointmentSection() {
           transition={{ duration: 1, delay: 0.3 }}
           className="flex flex-col basis-full md:basis-1/2 items-center justify-start px-6"
         >
-          <div className="rounded-lg bg-[#EFF5FF] p-12 flex items-center h-full w-full">
+          <div className="rounded-lg bg-[#EFF5FF] p-6 md:p-12 flex items-center h-full w-full">
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="w-full space-y-6"
