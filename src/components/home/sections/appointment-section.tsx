@@ -2,7 +2,7 @@ import { setAppointmentData } from "@/features/appointment/appointmentSlice";
 import { motion } from "motion/react";
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 type AppointmentFormData = {
   name: string;

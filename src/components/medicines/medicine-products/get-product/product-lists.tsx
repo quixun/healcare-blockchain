@@ -57,14 +57,22 @@ export default function ProductList() {
   const navigate = useNavigate();
   const [soldOutMessage, setSoldOutMessage] = useState<string | null>(null);
 
+
+  
+
   const handleCardClick = (product: Product) => {
-    if (!product.isSold) setSelectedProduct(product);
+    console.log(product.owner);
+
+    if (product.isSold) {
+      setSoldOutMessage(
+        "This product is out of stock, please choose another product."
+      );
+      return;
+    }
 
     if (product.owner === address) navigate(`/update-product/${product.id}`);
 
-    setSoldOutMessage(
-      "This product is out of stock, please choose another product."
-    );
+    setSelectedProduct(product);
   };
 
   const handleContinue = () => {
@@ -105,11 +113,11 @@ export default function ProductList() {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl md:text-3xl font-bold">Market Products</h2>
         <p className="text-blue-500 font-semibold text-sm md:text-base uppercase">
-          always check the price
+          always cheaper price
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-6">
+      <div className="flex  h-full flex-wrap gap-6">
         {products.map((product) => (
           <motion.div
             key={product.name}
@@ -117,7 +125,7 @@ export default function ProductList() {
             animate={{ opacity: 1, y: 0 }}
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="bg-white rounded-2xl pb-10 shadow hover:shadow-lg w-full cursor-pointer h-full sm:w-[45%] md:w-[22%] relative"
+            className="bg-white min-h-[435px] rounded-2xl pb-5 shadow hover:shadow-lg w-full cursor-pointer h-full sm:w-[45%] md:w-[22%] relative"
             onClick={() => handleCardClick(product)}
           >
             {product.isSold && (
@@ -143,7 +151,7 @@ export default function ProductList() {
                 product.imageCID
               }`}
               alt={product.name}
-              className="mx-auto h-full rounded-t-lg w-full object-contain mb-4"
+              className="mx-auto h-[291px] rounded-t-lg w-full object-contain mb-4"
             />
 
             <div className="flex justify-center mb-2">
@@ -176,7 +184,7 @@ export default function ProductList() {
               )}
             </div>
             {product.isOnSale && (
-              <div className="mt-auto text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full w-fit mx-auto">
+              <div className="mt-4 text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full w-fit mx-auto">
                 {calculateDaysRemaining(
                   product.createdAt,
                   Number(product.daysOnSale)
@@ -215,19 +223,6 @@ export default function ProductList() {
         onClose={() => setSelectedProduct(null)}
         onContinue={handleContinue}
       />
-
-      {/* {paymentProduct && (
-        <PaymentModal
-          isOpen={isPaymentOpen}
-          onClose={() => setIsPaymentOpen(false)}
-          onSend={handleSend}
-          product={{
-            name: paymentProduct.name,
-            price: Number(paymentProduct.currentPrice),
-            image: paymentProduct.imageCID,
-          }}
-        />
-      )} */}
 
       {/* Sold-out Notification */}
       {soldOutMessage && (

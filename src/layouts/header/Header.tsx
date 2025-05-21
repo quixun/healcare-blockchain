@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { Outlet, useNavigate } from "react-router";
-import { logout } from "../../features/account/accountSlice";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../features/hooks";
 import { RootState } from "../../features/store";
 import { ChevronDown, Menu, X } from "lucide-react";
@@ -37,17 +35,11 @@ const navItems: NavItem[] = [
 ];
 
 const Header: React.FC = () => {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { status } = useAppSelector((state: RootState) => state.account);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [tooltip, setTooltip] = useState<string | null>(null);
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
-
-  const handleLogout = () => {
-    dispatch(logout());
-    navigate("/login");
-  };
 
   const handleMouseEnter = (text: string) => {
     const newTimer = setTimeout(() => {
@@ -63,7 +55,7 @@ const Header: React.FC = () => {
 
   return (
     <>
-      <header className="bg-white z-50 fixed top-0 w-full text-white py-4 px-6 flex justify-between items-center">
+      <header className="bg-white z-50 sticky top-0 w-full text-white py-4 px-6 flex justify-between items-center">
         <h1
           className="text-xl font-bold cursor-pointer"
           onClick={() => navigate("/")}
@@ -75,7 +67,7 @@ const Header: React.FC = () => {
           />
         </h1>
 
-        {status ? (
+        {status && (
           <>
             <nav className="hidden lg:flex space-x-4 relative">
               {navItems.map((item) => (
@@ -190,24 +182,10 @@ const Header: React.FC = () => {
                       )}
                     </div>
                   ))}
-
-                  <button
-                    className="bg-red-500 px-4 py-2 rounded-lg text-white hover:bg-red-700 transition"
-                    onClick={handleLogout}
-                  >
-                    Đăng xuất
-                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
           </>
-        ) : (
-          <button
-            className="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
-            onClick={() => navigate("/login")}
-          >
-            Đăng nhập
-          </button>
         )}
       </header>
       <Outlet />

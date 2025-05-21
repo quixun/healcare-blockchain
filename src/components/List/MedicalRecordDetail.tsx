@@ -3,7 +3,7 @@ import { Card, CardContent } from "../ui/card";
 import { User } from "lucide-react";
 import useFetchAllRecords from "./utils/useFetchAllRecords";
 import { fetchAndDecryptFiles } from "@/utils/encryption";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
 import ImageSlider from "./components/image-slider";
 import GrantRevokeAccess from "./GrantRevokeAccess";
 

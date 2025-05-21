@@ -41,7 +41,9 @@ export default function BuyProduct() {
         from: address,
         to: product.owner,
         value: web3.utils.toWei(product.currentPrice, "ether"),
-        data: web3.utils.utf8ToHex(`${product.owner} have bought ${product.name}`),
+        data: web3.utils.utf8ToHex(
+          `${product.owner} have bought ${product.name}`
+        ),
       });
 
       // ✅ Update balance and nonce
@@ -55,6 +57,7 @@ export default function BuyProduct() {
       );
 
       alert("You have successfully bought the product");
+      navigate("/services/medicines");
     } catch (err) {
       console.error(err);
       alert("❌ Something went wrong. Please try again.");

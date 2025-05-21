@@ -1,6 +1,6 @@
 import { CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 type AboutUsSectionProps = {
   children: React.ReactNode;

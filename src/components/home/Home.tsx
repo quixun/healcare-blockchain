@@ -11,7 +11,7 @@ const AppointmentSection = lazy(() => import("./sections/appointment-section"));
 
 const Home = () => {
   return (
-    <div className="pt-18 pb-14 gap-2">
+    <div className="pt-5 pb-14 gap-2">
       <GeneralSection />
       <Suspense fallback={<div>Loading About...</div>}>
         <LazyLoad>

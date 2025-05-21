@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useAppDispatch } from "../../features/hooks";
 import Web3Service from "../../services/web3Service";
 import { login } from "../../features/account/accountSlice";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import Modal from "../common/modal";
 import Web3 from "web3";
 import { getUserName, saveUserName } from "../../services/user-service";
@@ -177,7 +177,7 @@ const Login: React.FC = () => {
                 How can we help you today?
               </motion.label>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-col md:flex-row items-center gap-3">
                 <motion.input
                   type="password"
                   placeholder="Enter Private Key"
