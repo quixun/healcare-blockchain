@@ -53,7 +53,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="my-14">
+    <div className="">
       <div className="flex-1 h-screen flex justify-center items-center relative">
         <motion.div
           className="z-30 w-full h-full flex rounded-lg overflow-hidden"
