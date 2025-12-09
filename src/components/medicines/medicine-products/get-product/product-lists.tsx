@@ -57,9 +57,6 @@ export default function ProductList() {
   const navigate = useNavigate();
   const [soldOutMessage, setSoldOutMessage] = useState<string | null>(null);
 
-
-  
-
   const handleCardClick = (product: Product) => {
     console.log(product.owner);
 

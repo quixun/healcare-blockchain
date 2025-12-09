@@ -14,24 +14,26 @@ import MyProduct from "@/components/medicines/medicine-products/get-product/my-p
 import BuyProduct from "@/components/medicines/medicine-products/buy-product/buy-product";
 import UpdateProduct from "@/components/medicines/medicine-products/update-product/update-product";
 import ConfirmAppointment from "@/components/appointment/confirm-appointment";
+import HistorySharedRecord from "@/components/List/HistorySharedRecord";
 
 export const ROUTES = {
-  LOGIN: '/login',
-  HOME: '/',
-  TRANSFER: '/transfer',
-  TRANSACTIONS: '/transactions',
-  TRANSFER_IMAGE: '/transfer-image',
-  CHAT_AI: '/chat-ai',
-  RECORD: '/services/record',
-  RECORD_DETAILS: '/services/record/details/:recordID',
-  BUY_PRODUCT: '/buy-product/:productID',
-  ABOUT_US: '/about-us',
-  ACCOUNT: '/account',
-  MEDICINES: '/services/medicines',
-  CONFIRM_BOOK_APPOINTMENT: '/confirm-book-appointment',
-  UPLOAD_PRODUCT: '/upload-product',
-  MY_PRODUCTS: '/my-products',
-  UPDATE_PRODUCT: '/update-product/:productID',
+  LOGIN: "/login",
+  HOME: "/",
+  TRANSFER: "/transfer",
+  TRANSACTIONS: "/transactions",
+  HISTORY_SHARED: "/shared-history",
+  TRANSFER_IMAGE: "/transfer-image",
+  CHAT_AI: "/chat-ai",
+  RECORD: "/services/record",
+  RECORD_DETAILS: "/services/record/details/:recordID",
+  BUY_PRODUCT: "/buy-product/:productID",
+  ABOUT_US: "/about-us",
+  ACCOUNT: "/account",
+  MEDICINES: "/services/medicines",
+  CONFIRM_BOOK_APPOINTMENT: "/confirm-book-appointment",
+  UPLOAD_PRODUCT: "/upload-product",
+  MY_PRODUCTS: "/my-products",
+  UPDATE_PRODUCT: "/update-product/:productID",
 } as const;
 
 export const publicRoutes = [
@@ -53,6 +55,10 @@ export const privateRoutes = [
   {
     path: ROUTES.TRANSACTIONS,
     element: Transactions,
+  },
+  {
+    path: ROUTES.HISTORY_SHARED,
+    element: HistorySharedRecord,
   },
   {
     path: ROUTES.TRANSFER_IMAGE,
@@ -97,8 +103,9 @@ export const privateRoutes = [
   {
     path: ROUTES.UPDATE_PRODUCT,
     element: UpdateProduct,
-  },{
+  },
+  {
     path: ROUTES.CONFIRM_BOOK_APPOINTMENT,
     element: ConfirmAppointment,
   },
-]; 
+];

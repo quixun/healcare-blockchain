@@ -1,6 +1,5 @@
-"use client";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useUpdateProduct } from "./use-update-product";
 import { useSelector } from "react-redux";
 import { RootState } from "@/features/store";
@@ -19,7 +18,6 @@ export default function UpdateProduct() {
 
   const [file, setFile] = useState<File | null>(null);
   const [existingImageCID, setExistingImageCID] = useState("");
-  const navigate = useNavigate();
   const [error, setError] = useState("");
 
   const { address } = useSelector((state: RootState) => state.account);
@@ -79,8 +77,20 @@ export default function UpdateProduct() {
     );
 
     if (result?.success) {
-      alert("Product updated successfully");
-      navigate("/services/medicines");
+      setForm((prev) => ({
+        id: prev.id,
+        brand: form.brand,
+        name: form.name,
+        currentPrice: form.currentPrice,
+        oldPrice: form.oldPrice,
+        rating: form.rating,
+      }));
+
+      if (result.cid) {
+        setExistingImageCID(result.cid);
+      }
+
+      alert("Updated!");
     } else {
       alert(result.error || "Update failed");
     }
