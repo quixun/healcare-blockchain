@@ -4,6 +4,11 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MedicalRecords is Ownable {
+    struct AccessLog {
+        address doctor;
+        uint256 sharedAt; // When the user clicked "Grant"
+        uint256 expiresAt; // When the access will die
+    }
     struct MedicalRecord {
         // IPFS CIDs
         string[] cids;
@@ -18,6 +23,7 @@ contract MedicalRecords is Ownable {
         // Access control & owner
         address owner;
         mapping(address => uint256) accessExpiry;
+        AccessLog[] accessHistory;
     }
 
     mapping(string => MedicalRecord) private records;
@@ -155,6 +161,15 @@ contract MedicalRecords is Ownable {
         uint256 expiryTime = block.timestamp + duration;
         records[recordId].accessExpiry[doctor] = expiryTime;
 
+        // 3. Update History: Push to the array
+        records[recordId].accessHistory.push(
+            AccessLog({
+                doctor: doctor,
+                sharedAt: block.timestamp,
+                expiresAt: expiryTime
+            })
+        );
+
         emit AccessGranted(recordId, doctor, expiryTime);
     }
 
@@ -242,5 +257,15 @@ contract MedicalRecords is Ownable {
                 index++;
             }
         }
+    }
+
+    function getAccessHistory(
+        string memory recordId
+    ) external view returns (AccessLog[] memory) {
+        require(
+            records[recordId].owner == msg.sender,
+            "Only owner can view history"
+        );
+        return records[recordId].accessHistory;
     }
 }

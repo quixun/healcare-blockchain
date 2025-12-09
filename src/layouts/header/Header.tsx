@@ -4,6 +4,7 @@ import { useAppSelector } from "../../features/hooks";
 import { RootState } from "../../features/store";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import { ROUTES } from "@/Router/routes";
 
 type NavItem = {
   label: string;
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
       { label: "Transfer Money", path: "/transfer" },
       { label: "Chat with AI", path: "/chat-ai" },
       { label: "Transaction History", path: "/transactions" },
+      { label: "Shared Record History", path: ROUTES.HISTORY_SHARED },
     ],
   },
   { label: "Account", path: "/account" },

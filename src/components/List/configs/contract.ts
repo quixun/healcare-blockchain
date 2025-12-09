@@ -1,4 +1,4 @@
-export const contractAddress = "0x735bCA3570cc2A0d07F34eC4Fbe09C7Acc6B9670";
+export const contractAddress = "0x8edB9dE15Bb0f2c49fB0519472F4C09F559deD0f";
 
 export const MEDICAL_RECORDS_ABI = [
   {
@@ -88,6 +88,27 @@ export const ACCESS_CONTROL_ABI = [
     ],
     name: "checkAccessExpiry",
     outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
+export const HISTORY_TRACKING_ABI = [
+  {
+    inputs: [{ internalType: "string", name: "recordId", type: "string" }],
+    name: "getAccessHistory",
+    outputs: [
+      {
+        components: [
+          { internalType: "address", name: "doctor", type: "address" },
+          { internalType: "uint256", name: "sharedAt", type: "uint256" },
+          { internalType: "uint256", name: "expiresAt", type: "uint256" },
+        ],
+        internalType: "struct MedicalRecords.AccessLog[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
     stateMutability: "view",
     type: "function",
   },
