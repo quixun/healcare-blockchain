@@ -28,7 +28,6 @@ const navItems: NavItem[] = [
       { label: "Upload Record", path: "/transfer-image" },
       { label: "Upload Product", path: "/upload-product" },
       { label: "Transfer Money", path: "/transfer" },
-      { label: "Chat with AI", path: "/chat-ai" },
       { label: "Transaction History", path: "/transactions" },
       { label: "Shared Record History", path: ROUTES.HISTORY_SHARED },
     ],

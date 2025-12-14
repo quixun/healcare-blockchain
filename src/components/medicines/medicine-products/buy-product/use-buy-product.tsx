@@ -1,5 +1,6 @@
 import Web3Service from "@/services/web3Service";
 import { ABI_BUY_PRODUCT, contractAddress } from "../config";
+import { toast } from "sonner";
 
 
 export const buyProduct = async (id: number, priceInEther: string) => {
@@ -13,9 +14,9 @@ export const buyProduct = async (id: number, priceInEther: string) => {
       value: web3.utils.toWei(priceInEther, "ether"),
     });
 
-    alert("Purchase successful!");
+    toast.success("Purchase successful!");
   } catch (error) {
     console.error("Purchase failed:", error);
-    alert("Failed to purchase product");
+    toast.error("Failed to purchase product");
   }
 };

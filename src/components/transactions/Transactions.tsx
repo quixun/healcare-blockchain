@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { SquareArrowDownRight, SquareArrowUpLeft } from "lucide-react";
+import { SquareArrowDownRight, SquareArrowUpLeft, Search } from "lucide-react";
 import Web3Service from "../../services/web3Service";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
@@ -37,6 +37,8 @@ const formatDate = (timestamp?: number) =>
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [searchQuery, setSearchQuery] = useState(""); 
+  
   const { address } = useSelector((state: RootState) => state.account);
   const web3 = Web3Service.getInstance().getWeb3();
   const [userNames, setUserNames] = useState<Record<string, string>>({});
@@ -54,16 +56,13 @@ const Transactions = () => {
       const txs: Transaction[] = blocks.flatMap(
         (block) =>
           block?.transactions
-            // 1) only your address
             .filter(
               (tx): tx is Transaction =>
                 typeof tx === "object" &&
                 (tx.from.toLowerCase() === address.toLowerCase() ||
                   tx.to?.toLowerCase() === address.toLowerCase())
             )
-            // 2) stamp the timestamp
             .map((tx) => ({ ...tx, timestamp: Number(block.timestamp) }))
-            // 3) drop messages that start "IMG:" or "Product:"
             .filter((tx) => {
               try {
                 const decodedInput = web3.utils.hexToUtf8(tx.input);
@@ -122,14 +121,25 @@ const Transactions = () => {
     fetchTransactions();
   }, [address, fetchUserNames, getTransactionsByAddress]);
 
+  const filteredTransactions = useMemo(() => {
+    if (!searchQuery.trim()) return transactions;
+    
+    const lowerQuery = searchQuery.toLowerCase();
+
+    return transactions.filter((tx) => {
+      const message = decodeMessage(tx.input, web3).toLowerCase();
+      return message.includes(lowerQuery);
+    });
+  }, [transactions, searchQuery, web3]);
+
   const groupedTransactions = useMemo(() => {
-    return transactions.reduce((acc, tx) => {
+    return filteredTransactions.reduce((acc, tx) => {
       const date = formatDate(tx.timestamp);
       if (!acc[date]) acc[date] = [];
       acc[date].push(tx);
       return acc;
     }, {} as Record<string, Transaction[]>);
-  }, [transactions]);
+  }, [filteredTransactions]);
 
   return (
     <div className="my-20">
@@ -141,7 +151,7 @@ const Transactions = () => {
           transition={{ duration: 0.5 }}
         >
           <motion.h2
-            className="text-3xl font-bold text-center mb-8"
+            className="text-3xl font-bold text-center mb-6"
             initial={{ opacity: 0, y: -300 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -149,6 +159,20 @@ const Transactions = () => {
           >
             Transaction History
           </motion.h2>
+
+          <div className="mb-8 relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search by message content..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm shadow-sm transition duration-150 ease-in-out"
+            />
+          </div>
+
           {Object.keys(groupedTransactions).length > 0 ? (
             Object.entries(groupedTransactions).map(([date, txs]) => (
               <div key={date} className="my-5">
@@ -204,15 +228,19 @@ const Transactions = () => {
               </div>
             ))
           ) : (
-            <motion.p
-              className="text-center text-gray-500"
+            <motion.div
+              className="text-center text-gray-500 py-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.5 }}
             >
-              Không có giao dịch nào.
-            </motion.p>
+              {searchQuery ? (
+                <p>No messages found matching "{searchQuery}"</p>
+              ) : (
+                <p>No transactions available.</p>
+              )}
+            </motion.div>
           )}
         </motion.div>
       </div>

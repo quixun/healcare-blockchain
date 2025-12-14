@@ -3,7 +3,6 @@ import Login from "../components/login";
 import Transfer from "../components/transfer/Transfer";
 import Transactions from "../components/transactions";
 import UploadInfoForm from "../components/List/MedicalRecordUpload";
-import ChatPage from "../components/chat/AiChatPage";
 import RecordOwnershipCheck from "../components/List/MedicalRecordsList";
 import AboutUsPage from "../components/about-us-page/about-us-page";
 import AccountPage from "../components/account/account-page";
@@ -23,7 +22,6 @@ export const ROUTES = {
   TRANSACTIONS: "/transactions",
   HISTORY_SHARED: "/shared-history",
   TRANSFER_IMAGE: "/transfer-image",
-  CHAT_AI: "/chat-ai",
   RECORD: "/services/record",
   RECORD_DETAILS: "/services/record/details/:recordID",
   BUY_PRODUCT: "/buy-product/:productID",
@@ -63,10 +61,6 @@ export const privateRoutes = [
   {
     path: ROUTES.TRANSFER_IMAGE,
     element: UploadInfoForm,
-  },
-  {
-    path: ROUTES.CHAT_AI,
-    element: ChatPage,
   },
   {
     path: ROUTES.RECORD,

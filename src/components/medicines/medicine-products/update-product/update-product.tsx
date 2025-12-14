@@ -4,6 +4,7 @@ import { useUpdateProduct } from "./use-update-product";
 import { useSelector } from "react-redux";
 import { RootState } from "@/features/store";
 import { useFetchProducts } from "../get-product/use-fetch-product";
+import { toast } from "sonner";
 
 export default function UpdateProduct() {
   const { productID } = useParams();
@@ -90,9 +91,9 @@ export default function UpdateProduct() {
         setExistingImageCID(result.cid);
       }
 
-      alert("Updated!");
+      toast.success("Product updated successfully!");
     } else {
-      alert(result.error || "Update failed");
+      toast.error(result.error || "Update failed");
     }
   };
 

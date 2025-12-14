@@ -7,6 +7,7 @@ import Web3Service from "@/services/web3Service";
 import { ABI_BUY_PRODUCT, contractAddress } from "../config";
 import { updateAcount } from "@/features/account/accountSlice";
 import { useState } from "react";
+import { toast } from "sonner";
 export default function BuyProduct() {
   const { productID } = useParams();
   const { address } = useSelector((state: RootState) => state.account);
@@ -56,11 +57,11 @@ export default function BuyProduct() {
         })
       );
 
-      alert("You have successfully bought the product");
+      toast.success("You have successfully bought the product");
       navigate("/services/medicines");
     } catch (err) {
       console.error(err);
-      alert("❌ Something went wrong. Please try again.");
+      toast.error("❌ Something went wrong. Please try again.");
     }
   };
 
