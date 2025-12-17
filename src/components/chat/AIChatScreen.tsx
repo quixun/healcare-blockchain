@@ -10,11 +10,14 @@ import { RootState } from "../../features/store";
 import { useSelector } from "react-redux";
 import Web3Service from "../../services/web3Service";
 
-export type AIMessage = {
+// FIX 1: Change "image" to "image_url" to match ChatMessage type
+export interface AIMessage {
+  id: string;
+  text: string;
   type: "text" | "image_url";
-  text?: string;
   image_url?: { url: string };
-};
+  role: "user" | "assistant";
+}
 
 const AIChatScreen = ({
   initialMessages,
@@ -29,10 +32,10 @@ const AIChatScreen = ({
   const web3 = Web3Service.getInstance().getWeb3();
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
+  // ... (fetchUploadedImages and useEffects remain the same) ...
   const fetchUploadedImages = useCallback(async (): Promise<string[]> => {
     try {
       if (!address) return [];
-
       const latestBlock = await web3.eth.getBlockNumber();
       const images: string[] = [];
 
@@ -42,7 +45,6 @@ const AIChatScreen = ({
         i--
       ) {
         const block = await web3.eth.getBlock(i, true);
-
         block.transactions.forEach((tx) => {
           if (
             typeof tx === "object" &&
@@ -52,47 +54,30 @@ const AIChatScreen = ({
             try {
               if (!tx.input) return;
               const decodedInput = web3.utils.hexToUtf8(tx.input);
-
               if (decodedInput.startsWith("IMG:")) {
-                const cid = decodedInput.replace("IMG:", "");
-                images.push(cid);
+                images.push(decodedInput.replace("IMG:", ""));
               }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (error) {
-              console.error("Error decoding transaction input:", error);
+              /* ignore */
             }
           }
         });
       }
-
       setUploadedImages(images);
       return images;
     } catch (error) {
-      console.error("Error fetching uploaded images:", error);
+      console.error(error);
       return [];
     }
   }, [address, web3.eth, web3.utils]);
 
   useEffect(() => {
-    const fetchUploadedImage = async () => {
-      try {
-        const images = await fetchUploadedImages();
-        setUploadedImages(images);
-      } catch (error) {
-        console.error("Error fetching uploaded images:", error);
-      }
-    };
-
-    fetchUploadedImage();
+    fetchUploadedImages();
   }, [fetchUploadedImages]);
 
   useEffect(() => {
-    const el = messagesEndRef.current;
-    if (el) {
-      const parent = el.parentElement;
-      if (parent) {
-        parent.scrollTop = parent.scrollHeight - 50;
-      }
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -101,6 +86,8 @@ const AIChatScreen = ({
 
   const handleSendMessage = async (newMessages: AIMessage[]) => {
     if (!address) return;
+
+    // Type is now compatible here
     const userMessages: ChatMessage[] = newMessages.map((msg) => ({
       role: "user",
       content: msg,
@@ -109,32 +96,34 @@ const AIChatScreen = ({
     }));
 
     setMessages((prev) => [...prev, ...userMessages]);
-
-    // Store user messages in Firestore
-    userMessages.forEach(async (message) => {
-      await addMessageToFirestore(message);
-    });
+    userMessages.forEach((msg) => addMessageToFirestore(msg));
 
     setLoading(true);
     setError(false);
 
     try {
       const aiResponse = await fetchAIResponse(newMessages);
-      const aiContent =
+      const aiContentText =
         aiResponse?.choices?.[0]?.message?.content || "No response received.";
+
+      const aiResponseContent: AIMessage = {
+        id: Date.now().toString(),
+        text: aiContentText,
+        type: "text",
+        role: "assistant",
+      };
 
       const aiMessage: ChatMessage = {
         role: "ai",
-        content: { type: "text", text: aiContent },
+        content: aiResponseContent,
         timestamp: Date.now(),
         userAddress: address,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
-
-      // Store AI response in Firestore
       await addMessageToFirestore(aiMessage);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError(true);
     } finally {
       setLoading(false);
@@ -142,8 +131,8 @@ const AIChatScreen = ({
   };
 
   return (
-    <div className="mx-auto p-4 bg-white w-[90%] max-w-lvh rounded-lg flex flex-col">
-      <div className="overflow-y-auto scrollbar-hide max-h-[80%] flex-1 space-y-3 pt-0 px-2">
+    <div className="pt-2 bg-white w-full max-w-lvh rounded-lg flex flex-col h-full">
+      <div className="overflow-y-auto scrollbar-hide flex-1 space-y-3 pt-0 border-b border-gray-200">
         <ChatMessages messages={messages} />
         <div ref={messagesEndRef} />
         {loading && <p className="text-gray-500">AI is typing...</p>}
@@ -153,7 +142,7 @@ const AIChatScreen = ({
           <p>Error fetching response.</p>
           <button
             onClick={() => handleSendMessage([])}
-            className="ml-2 text-blue-500 flex items-center"
+            className="ml-2 text-blue-500"
           >
             Retry
           </button>

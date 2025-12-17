@@ -11,6 +11,7 @@ import {
 } from "./configs/contract";
 import { motion } from "framer-motion";
 import { encryptFileContent } from "../../utils/encryption";
+import { toast } from "sonner";
 
 const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
 
@@ -38,7 +39,7 @@ const UploadInfoForm: React.FC = () => {
 
   const checkLogin = async () => {
     if (!address) {
-      alert("Please connect your wallet.");
+      toast.warning("Please connect your wallet.");
       return null;
     }
     return address;
@@ -46,7 +47,7 @@ const UploadInfoForm: React.FC = () => {
 
   const onSubmit = async (data: MedicalRecordForm) => {
     if (files.length === 0) {
-      return alert("Please select at least one file to upload.");
+      return toast.warning("Please select at least one file to upload.");
     }
 
     try {
@@ -92,7 +93,7 @@ const UploadInfoForm: React.FC = () => {
 
       await tx.wait();
 
-      alert("Medical record successfully uploaded!");
+      toast.success("Medical record successfully uploaded!");
       reset();
       setFiles([]);
       setRecordId(uuidv4());

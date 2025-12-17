@@ -7,6 +7,7 @@ import { RootState } from "../../features/store";
 import { create } from "ipfs-http-client";
 import Web3Service from "../../services/web3Service";
 import Modal from "../common/modal";
+import { toast } from "sonner";
 
 type Props = {
   onSendMessage: (messages: AIMessage[]) => void;
@@ -24,62 +25,47 @@ const ChatInput = ({
   const [message, setMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // To manage modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { address } = useSelector((state: RootState) => state.account);
-  // const web3 = Web3Service.getInstance().getWeb3();
 
-  // Open and close modal
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   const checkLogin = async () => {
     if (!address) {
-      alert("Please login to your wallet.");
+      console.warn("Please login to your wallet.");
       return null;
     }
     return address;
   };
 
-  // Handle image selection logic
   const handleImageSelect = (url: string) => {
     setIsModalOpen(false);
     setSelectedImage(url);
     setPreview(url);
   };
 
-  // Handle image upload logic
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const selectedFile = e.target.files[0];
-
-      // Upload the image immediately after selecting it
       await uploadToIPFS(selectedFile);
     }
   };
 
-  // Upload image to IPFS
   const uploadToIPFS = async (file: File) => {
     try {
       const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
       const added = await ipfs.add(file);
-      const cid = added.path; // Get the CID of the uploaded file
-
-      // Save the CID to the blockchain and sync the uploaded images
-      await saveToBlockchain(cid);
+      await saveToBlockchain(added.path);
     } catch (error) {
       console.error("Error uploading to IPFS:", error);
     }
   };
 
-  // Save the CID to the blockchain and update the uploaded images list
   const saveToBlockchain = async (cid: string) => {
     try {
-      // Here you would interact with your Web3 service to save the CID
       const web3 = Web3Service.getInstance().getWeb3();
       const account = await checkLogin();
-
       if (!account) return;
 
       const imageData = `IMG:${cid}`;
@@ -89,11 +75,9 @@ const ChatInput = ({
         data: web3.utils.asciiToHex(imageData),
       });
 
-      // Update the uploaded images list
-      setUploadedImages((prevImages) => [cid, ...prevImages]);
-
-      alert("Image uploaded and CID saved to blockchain!");
-      toggleModal(); // Close the modal after upload
+      setUploadedImages((prev) => [cid, ...prev]);
+      toast.success("Image uploaded and CID saved to blockchain!");
+      toggleModal();
     } catch (error) {
       console.error("Error saving CID to blockchain:", error);
     }
@@ -103,17 +87,28 @@ const ChatInput = ({
     if (!message.trim() && !selectedImage) return;
 
     const newMessages: AIMessage[] = [];
+    const timestampId = Date.now().toString();
 
+    // 1. Create Text Message
     if (message.trim()) {
-      newMessages.push({ type: "text", text: message });
+      newMessages.push({
+        id: timestampId + "-text",
+        type: "text",
+        text: message,
+        role: "user",
+      });
     }
 
+    // 2. Create Image Message
     if (selectedImage) {
       newMessages.push({
+        id: timestampId + "-img",
         type: "image_url",
+        text: "",
         image_url: {
           url: `${import.meta.env.VITE_IPFS_PUBLIC_API_URL}${selectedImage}`,
         },
+        role: "user",
       });
     }
 
@@ -135,9 +130,8 @@ const ChatInput = ({
     <>
       <form
         onSubmit={(e) => e.preventDefault()}
-        className="border border-gray-300 py-4 px-4 mx-auto w-full absolute left-1/2 -translate-x-1/2 bottom-24 flex-col max-w-lvh bg-white flex items-start rounded-lg"
+        className="w-full flex flex-col items-start bg-white pb-2"
       >
-        {/* Image Preview */}
         {preview && (
           <div className="w-16 h-16 mb-3 relative">
             <img
@@ -154,7 +148,6 @@ const ChatInput = ({
           </div>
         )}
 
-        {/* Image selection and message input */}
         <div className="flex items-center w-full relative">
           <label
             className="absolute left-3 cursor-pointer"
@@ -170,7 +163,7 @@ const ChatInput = ({
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message..."
-            className="w-full pl-12 pr-12 p-2 rounded-md focus:outline-none focus:ring-0"
+            className="w-full px-12 py-3 rounded-md focus:outline-none focus:ring-0"
           />
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -182,29 +175,23 @@ const ChatInput = ({
             <Send size={24} />
           </motion.button>
         </div>
-
-        {/* Modal for uploaded images */}
       </form>
+
+      {/* Modal for uploaded images */}
       <Modal isOpen={isModalOpen} onClose={toggleModal} title="Select an Image">
         <div className="flex h-[70%] justify-center items-center w-full flex-wrap gap-2 overflow-auto">
-          {/* Show uploaded images with animation */}
           {uploadedImages.map((url, index) => (
             <motion.img
               key={index}
               src={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${url}`}
-              alt={`Uploaded image ${index}`}
+              alt={`Uploaded ${index}`}
               className="object-contain max-h-[150px] max-w-[150px] rounded-md cursor-pointer"
-              initial={{ opacity: 0, scale: 1.2 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
               whileHover={{ scale: 1.1 }}
               onClick={() => handleImageSelect(url)}
             />
           ))}
-
           <button
-            className="w-30 h-30 flex justify-center hover:bg-gray-200 duration-150 ease-in-out items-center bg-gray-100 rounded-md border border-dashed cursor-pointer"
+            className="w-30 h-30 flex justify-center items-center bg-gray-100 rounded-md border border-dashed cursor-pointer hover:bg-gray-200"
             onClick={() => fileInputRef.current?.click()}
           >
             <Plus size={32} className="text-gray-500 hover:text-gray-700" />
