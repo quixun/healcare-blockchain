@@ -20,6 +20,8 @@ contract MedicalRecords is Ownable {
         string bloodPressure;
         string heartRate;
         string temperature;
+        string diseaseGroup;
+        string description;
         // Access control & owner
         address owner;
         mapping(address => uint256) accessExpiry;
@@ -55,7 +57,9 @@ contract MedicalRecords is Ownable {
         // Vitals
         string memory _bloodPressure,
         string memory _heartRate,
-        string memory _temperature
+        string memory _temperature,
+        string memory _diseaseGroup,
+        string memory _description
     ) external {
         require(bytes(recordId).length > 0, "ID required");
         require(records[recordId].owner == address(0), "Already exists");
@@ -77,6 +81,8 @@ contract MedicalRecords is Ownable {
         rec.bloodPressure = _bloodPressure;
         rec.heartRate = _heartRate;
         rec.temperature = _temperature;
+        rec.diseaseGroup = _diseaseGroup;
+        rec.description = _description;
 
         // Push recordId to recordIds list
         recordIds.push(recordId);
@@ -98,6 +104,8 @@ contract MedicalRecords is Ownable {
             string[] memory bloodPressures,
             string[] memory heartRates,
             string[] memory temperatures,
+            string[] memory diseaseGroup,
+            string[] memory description,
             address[] memory owners
         )
     {
@@ -119,6 +127,8 @@ contract MedicalRecords is Ownable {
         bloodPressures = new string[](count);
         heartRates = new string[](count);
         temperatures = new string[](count);
+        diseaseGroup = new string[](count);
+        description = new string[](count);
         owners = new address[](count);
 
         uint256 index = 0;
@@ -133,6 +143,8 @@ contract MedicalRecords is Ownable {
                 bloodPressures[index] = rec.bloodPressure;
                 heartRates[index] = rec.heartRate;
                 temperatures[index] = rec.temperature;
+                diseaseGroup[index] = rec.diseaseGroup;
+                description[index] = rec.description;
                 owners[index] = rec.owner;
                 index++;
             }
@@ -213,6 +225,8 @@ contract MedicalRecords is Ownable {
             string[] memory bloodPressures,
             string[] memory heartRates,
             string[] memory temperatures,
+            string[] memory diseaseGroup,
+            string[] memory description,
             address[] memory owners
         )
     {
@@ -236,6 +250,8 @@ contract MedicalRecords is Ownable {
         bloodPressures = new string[](count);
         heartRates = new string[](count);
         temperatures = new string[](count);
+        diseaseGroup = new string[](count);
+        description = new string[](count);
         owners = new address[](count);
 
         uint256 index = 0;
@@ -253,6 +269,8 @@ contract MedicalRecords is Ownable {
                 bloodPressures[index] = rec.bloodPressure;
                 heartRates[index] = rec.heartRate;
                 temperatures[index] = rec.temperature;
+                diseaseGroup[index] = rec.diseaseGroup;
+                description[index] = rec.description;
                 owners[index] = rec.owner;
                 index++;
             }

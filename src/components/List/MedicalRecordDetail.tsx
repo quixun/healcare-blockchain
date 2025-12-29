@@ -3,9 +3,10 @@ import { Card, CardContent } from "../ui/card";
 import { User } from "lucide-react";
 import useFetchAllRecords from "./utils/useFetchAllRecords";
 import { fetchAndDecryptFiles } from "@/utils/encryption";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import ImageSlider from "./components/image-slider";
 import GrantRevokeAccess from "./GrantRevokeAccess";
+import useFetchSharedMedicalRecords from "./utils/useFetchSharedMedicalRecords";
 
 type MedicalRecordProps = {
   patient: {
@@ -13,15 +14,12 @@ type MedicalRecordProps = {
     age: number;
     gender: string;
   };
-  summary: {
-    conditions: string[];
-    allergies: string[];
-    medications: string[];
-  };
   vitals: {
     bloodPressure: string;
     heartRate: string;
     temperature: string;
+    diseaseGroup: string;
+    description: string;
   };
   recentVisit: {
     date: string;
@@ -86,8 +84,13 @@ export const RecordDetail: React.FC<Partial<MedicalRecordProps>> = (props) => {
     ...mockData,
     ...props,
   };
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("type");
 
-  const { records } = useFetchAllRecords();
+  const { records: allRecords } = useFetchAllRecords();
+  const { records: sharedRecords } = useFetchSharedMedicalRecords();
+  const records = query === "shared" ? sharedRecords : allRecords;
+
   const { recordID } = useParams();
 
   const currentRecord = records.find((rec) => rec.id === recordID);
@@ -123,8 +126,8 @@ export const RecordDetail: React.FC<Partial<MedicalRecordProps>> = (props) => {
   }
 
   return (
-    <div className="flex gap-10 justify-center">
-      <Card className="basis-2/3 flex-1 p-4 rounded-2xl mt-24 mb-10 shadow-md w-full max-w-xl ">
+    <div className="flex gap-10 justify-center w-full">
+      <Card className="p-4 rounded-2xl mb-10 shadow-md w-full max-w-xl">
         <CardContent className="space-y-4">
           <div className="text-xl font-semibold flex items-center gap-2">
             <User className="w-5 h-5" />
@@ -150,46 +153,56 @@ export const RecordDetail: React.FC<Partial<MedicalRecordProps>> = (props) => {
             <p>Blood Pressure: {currentRecord?.vitals.bloodPressure}</p>
             <p>Heart Rate: {currentRecord?.vitals.heartRate}</p>
             <p>Temperature: {currentRecord?.vitals.temperature}</p>
+            <p>Diseases: {currentRecord?.vitals.diseaseGroup}</p>
+            <p>Description: {currentRecord?.vitals.description}</p>
           </div>
 
-          <div className="space-y-1">
-            <h3 className="text-base font-medium">📋 Recent Visit</h3>
-            <p>Date: {recentVisit.date}</p>
-            <p>Reason: {recentVisit.reason}</p>
-            <p>Notes: {recentVisit.notes}</p>
-          </div>
+          {query === "shared" && (
+            <>
+              <div className="space-y-1">
+                <h3 className="text-base font-medium">📋 Recent Visit</h3>
+                <p>Date: {recentVisit.date}</p>
+                <p>Reason: {recentVisit.reason}</p>
+                <p>Notes: {recentVisit.notes}</p>
+              </div>
 
-          <div className="space-y-1">
-            <h3 className="text-base font-medium">🧪 Lab Result</h3>
-            <p>
-              {labResult.testName} - {labResult.result} ({labResult.date})
-            </p>
-          </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-medium">🧪 Lab Result</h3>
+                <p>
+                  {labResult.testName} - {labResult.result} ({labResult.date})
+                </p>
+              </div>
 
-          <div className="space-y-1">
-            <h3 className="text-base font-medium">💊 Prescription</h3>
-            <p>
-              {prescription.name} ({prescription.dosage}) -{" "}
-              {prescription.prescribedDate}
-            </p>
-          </div>
-
-          {nextAppointment && (
-            <div className="space-y-1">
-              <h3 className="text-base font-medium">📅 Next Appointment</h3>
-              <p>
-                {nextAppointment.date} with Dr. {nextAppointment.doctor}
-              </p>
-            </div>
+              <div className="space-y-1">
+                <h3 className="text-base font-medium">💊 Prescription</h3>
+                <p>
+                  {prescription.name} ({prescription.dosage}) -{" "}
+                  {prescription.prescribedDate}
+                </p>
+              </div>
+              {nextAppointment && (
+                <div className="space-y-1">
+                  <h3 className="text-base font-medium">📅 Next Appointment</h3>
+                  <p>
+                    {nextAppointment.date} with Dr. {nextAppointment.doctor}
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
-      <div className="flex flex-col mt-24 basis-1/3 justify-between pb-10">
+      <div className="flex flex-col justify-between pb-10 w-full gap-2">
         <ImageSlider
           images={decryptedImageUrls[currentRecord.id] || []}
           title="Medical Images"
         />
-        <GrantRevokeAccess recordId={recordID} />
+        {query !== "shared" && (
+          <GrantRevokeAccess
+            recordId={currentRecord.id}
+            major={currentRecord?.vitals.diseaseGroup}
+          />
+        )}
       </div>
     </div>
   );

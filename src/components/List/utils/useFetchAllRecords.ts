@@ -15,6 +15,8 @@ export type Record = {
     bloodPressure: string;
     heartRate: string;
     temperature: string;
+    diseaseGroup: string;
+    description: string;
   };
 };
 
@@ -46,6 +48,8 @@ const useFetchAllMedicalRecords = () => {
         bloodPressures,
         heartRates,
         temperatures,
+        diseaseGroups,
+        descriptions,
         owners,
       ] = await contract.getRecordsByOwner(address);
 
@@ -57,7 +61,9 @@ const useFetchAllMedicalRecords = () => {
         const patientGender = genders[index] || "";
         const bloodPressure = bloodPressures[index] || "";
         const heartRate = heartRates[index] || "";
-        const temperature = temperatures[index] || "";        
+        const temperature = temperatures[index] || "";
+        const diseaseGroup = diseaseGroups[index] || "";
+        const description = descriptions[index] || "";
 
         return {
           id: recordId,
@@ -70,6 +76,8 @@ const useFetchAllMedicalRecords = () => {
             bloodPressure,
             heartRate,
             temperature,
+            diseaseGroup,
+            description,
           },
         };
       });

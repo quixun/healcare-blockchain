@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"; // 1. Import useMemo
+import { useState, useMemo, useEffect } from "react";
 import { ethers } from "ethers";
 import { useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -10,11 +10,37 @@ import { toast } from "sonner";
 import { RootState } from "../../features/store";
 import { contractAddress, ACCESS_CONTROL_ABI } from "./configs/contract";
 import { ROUTES } from "@/Router/routes";
+import { getAllUsers, UserWithAddress } from "@/services/user-service";
+import { DURATION_OPTIONS } from "@/constant/grant-time";
 
-const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
+type GrantRevokeAccessProps = {
+  major: string;
+  recordId: string;
+};
+
+const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<UserWithAddress[]>([]);
   const { address: account } = useSelector((state: RootState) => state.account);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await getAllUsers();
+        const otherUsers = data.filter(
+          (u) =>
+            u.address.toLowerCase() !== account?.toLowerCase() &&
+            u.major === major
+        );
+        setUsers(otherUsers);
+      } catch (error) {
+        console.error("Failed to load users", error);
+        toast.error("Could not load user list");
+      }
+    };
+    if (account) fetchUsers();
+  }, [account, major]);
 
   const formSchema = useMemo(() => {
     return z.object({
@@ -120,7 +146,7 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
 
   return (
     <motion.div
-      className="p-6 border rounded-lg shadow-md bg-white max-w-md mx-auto"
+      className="p-6 border rounded-lg shadow-md w-full bg-white mx-auto"
       initial={{ opacity: 0, x: 100 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0 }}
@@ -134,18 +160,32 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
         {/* Address Input */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Wallet Address
+            Select Doctor ({major})
           </label>
-          <input
+
+          <select
             {...register("address")}
-            type="text"
-            placeholder="0x..."
-            className={`border p-2 rounded w-full focus:outline-none focus:ring-2 ${
+            className={`border p-2 rounded w-full focus:outline-none focus:ring-2 bg-white ${
               errors.address
                 ? "border-red-500 focus:ring-red-200"
                 : "border-gray-300 focus:ring-blue-200"
             }`}
-          />
+          >
+            <option value="">Select a doctor</option>
+            {users.length > 0 ? (
+              users.map((user) => (
+                <option key={user.address} value={user.address}>
+                  {user.userName} ({user.address.slice(0, 6)}...
+                  {user.address.slice(-4)})
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>
+                No doctors found for {major}
+              </option>
+            )}
+          </select>
+
           {errors.address && (
             <span className="text-xs text-red-500">
               {errors.address.message}
@@ -156,19 +196,26 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
         {/* Duration Input */}
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700">
-            Duration{" "}
-            <span className="text-gray-400 font-normal">(seconds)</span>
+            Access Duration
           </label>
-          <input
+          <select
             {...register("duration")}
-            type="number"
-            placeholder="e.g. 3600"
-            className={`border p-2 rounded w-full focus:outline-none focus:ring-2 ${
+            className={`border p-2 rounded w-full focus:outline-none focus:ring-2 bg-white ${
               errors.duration
                 ? "border-red-500 focus:ring-red-200"
                 : "border-gray-300 focus:ring-blue-200"
             }`}
-          />
+            defaultValue=""
+          >
+            <option value="" disabled>
+              Select duration
+            </option>
+            {DURATION_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
           {errors.duration && (
             <span className="text-xs text-red-500">
               {errors.duration.message}
@@ -182,7 +229,7 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
             onClick={handleSubmit(onGrant)}
             type="button"
             disabled={loading}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-green-600 hover:bg-green-700 text-white font-medium p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Grant Access
           </button>
@@ -191,7 +238,7 @@ const GrantRevokeAccess = ({ recordId }: { recordId: string }) => {
             onClick={onRevoke}
             type="button"
             disabled={loading}
-            className="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-red-500 hover:bg-red-600 text-white font-medium p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Revoke Access
           </button>

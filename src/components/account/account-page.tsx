@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
-import { saveUserInfo, getUserInfo, Gender } from "../../services/user-service";
+import { saveUserInfo, getUserInfo, Gender, UserInfo } from "../../services/user-service";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAppDispatch } from "@/features/hooks";
 import { logout } from "@/features/account/accountSlice";
@@ -16,6 +16,7 @@ import Modal from "../common/modal";
 import { Plus } from "lucide-react";
 import { create } from "ipfs-http-client";
 import { useNavigate } from "react-router-dom";
+import { CAREER_GROUPS, DISEASE_GROUPS } from "@/constant/major";
 const genderMap = {
   [Gender.MALE]: "Nam",
   [Gender.FEMALE]: "Nữ",
@@ -39,7 +40,9 @@ export default function AccountPage() {
   const navigate = useNavigate();
 
   const [editMode, setEditMode] = useState(false);
-  const [userInfo, setUserInfo] = useState({
+
+  // 2. Added 'major' to userInfo state
+  const [userInfo, setUserInfo] = useState<UserInfo>({
     userName: "",
     avatarUrl: "",
     bio: "",
@@ -47,7 +50,8 @@ export default function AccountPage() {
     phoneNumber: "",
     dateOfBirth: "",
     gender: Gender.MALE,
-    occupation: "",
+    career: CAREER_GROUPS.PATIENT,
+    major: "",
     location: "",
   });
   const [loading, setLoading] = useState(false);
@@ -103,32 +107,24 @@ export default function AccountPage() {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
       const selectedFile = e.target.files[0];
-
-      // Upload the image immediately after selecting it
       await uploadToIPFS(selectedFile);
     }
   };
 
-  // Upload image to IPFS
   const uploadToIPFS = async (file: File) => {
     try {
       const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
       const added = await ipfs.add(file);
-      const cid = added.path; // Get the CID of the uploaded file
-
-      // Save the CID to the blockchain and sync the uploaded images
+      const cid = added.path;
       await saveToBlockchain(cid);
     } catch (error) {
       console.error("Error uploading to IPFS:", error);
     }
   };
 
-  // Save the CID to the blockchain and update the uploaded images list
   const saveToBlockchain = async (cid: string) => {
     try {
-      // Here you would interact with your Web3 service to save the CID
       const web3 = Web3Service.getInstance().getWeb3();
-
       if (!address) return;
 
       const imageData = `IMG:${cid}`;
@@ -138,9 +134,7 @@ export default function AccountPage() {
         data: web3.utils.asciiToHex(imageData),
       });
 
-      // Update the uploaded images list
       setUploadedImages((prevImages) => [cid, ...prevImages]);
-
       toggleModal();
     } catch (error) {
       console.error("Error saving CID to blockchain:", error);
@@ -220,11 +214,11 @@ export default function AccountPage() {
   }, [address]);
 
   return (
-    <div className="my-20">
+    <div className="my-2">
       <div className="flex-1 flex justify-center items-center relative">
         <motion.div
-          className={`relative z-30 w-full flex justify-center px-9 pt-16 rounded-lg ${
-            editMode && "mt-20"
+          className={`relative z-30 w-full flex justify-center px-9 rounded-lg ${
+            editMode && ""
           }`}
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -247,7 +241,7 @@ export default function AccountPage() {
                   userInfo.avatarUrl
                 }`}
                 alt="Avatar"
-                className="w-44 h-44 rounded-full mx-auto mb-4"
+                className="w-44 h-44 rounded-full mx-auto mb-4 object-cover"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 0.5 }}
@@ -276,7 +270,7 @@ export default function AccountPage() {
                   ([key, value]) =>
                     key !== "avatarUrl" && (
                       <div className="mb-4 text-left" key={key}>
-                        <label className="block font-medium">
+                        <label className="block font-medium mb-1">
                           {key === "userName"
                             ? "Owner:"
                             : key === "bio"
@@ -289,13 +283,35 @@ export default function AccountPage() {
                             ? "Date Of Birth:"
                             : key === "gender"
                             ? "Gender:"
+                            : key === "major" // Label for Major
+                            ? "Medical Major / Specialty:"
                             : key === "location"
                             ? "Address:"
                             : key === "occupation"
                             ? "Career:"
                             : ""}
                         </label>
-                        {key === "gender" ? (
+
+                        {/* 3. Dropdown for Major */}
+                        {key === "major" ? (
+                          <select
+                            value={value as string}
+                            onChange={(e) =>
+                              handleChange(
+                                key as keyof typeof userInfo,
+                                e.target.value
+                              )
+                            }
+                            className="w-full border px-3 py-2 rounded-lg bg-white"
+                          >
+                            <option value="">Select a specialty</option>
+                            {DISEASE_GROUPS.map((m) => (
+                              <option key={m} value={m}>
+                                {m}
+                              </option>
+                            ))}
+                          </select>
+                        ) : key === "gender" ? (
                           <select
                             value={value as Gender}
                             onChange={(e) =>
@@ -304,7 +320,7 @@ export default function AccountPage() {
                                 e.target.value as Gender
                               )
                             }
-                            className="w-full border px-3 py-2 rounded-lg"
+                            className="w-full border px-3 py-2 rounded-lg bg-white"
                           >
                             {Object.values(Gender).map((g) => (
                               <option key={g} value={g}>
@@ -332,7 +348,7 @@ export default function AccountPage() {
                 <div className="mb-4 text-left">
                   <label className="block font-medium">Avatar:</label>
                   <button
-                    className="w-full border px-3 py-2 rounded-lg"
+                    className="w-full border px-3 py-2 rounded-lg hover:bg-gray-50"
                     onClick={toggleModal}
                   >
                     Choose your avatar
@@ -347,7 +363,7 @@ export default function AccountPage() {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  {loading ? "Đang lưu..." : "Lưu thông tin"}
+                  {loading ? "Saving..." : "Save Information"}
                 </motion.button>
                 <Modal
                   isOpen={isModalOpen}
@@ -355,24 +371,23 @@ export default function AccountPage() {
                   title="Select an Image"
                 >
                   <div className="flex h-[70%] justify-center items-center w-full flex-wrap gap-2 overflow-auto">
-                    {/* Show uploaded images with animation */}
                     {uploadedImages.map((url, index) => (
                       <motion.img
                         key={index}
                         src={`${import.meta.env.VITE_IPFS_GATEWAY_URL}/${url}`}
                         alt={`Uploaded image ${index}`}
-                        className="object-contain max-h-[150px] max-w-[150px] rounded-md cursor-pointer"
+                        className="object-contain max-h-[150px] max-w-[150px] rounded-md cursor-pointer border hover:border-blue-500"
                         initial={{ opacity: 0, scale: 1.2 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.8 }}
                         transition={{ duration: 0.3 }}
-                        whileHover={{ scale: 1.1 }}
+                        whileHover={{ scale: 1.05 }}
                         onClick={() => handleAvatarChange(url)}
                       />
                     ))}
 
                     <button
-                      className="w-30 h-30 flex justify-center hover:bg-gray-200 duration-150 ease-in-out items-center bg-gray-100 rounded-md border border-dashed cursor-pointer"
+                      className="w-32 h-32 flex justify-center hover:bg-gray-200 duration-150 ease-in-out items-center bg-gray-100 rounded-md border-2 border-dashed cursor-pointer"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       <Plus
@@ -392,63 +407,78 @@ export default function AccountPage() {
               </>
             ) : (
               <motion.div
-                className="text-left"
+                className="text-left space-y-2"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <p className="text-gray-600">
-                  <strong>Onwer:</strong>{" "}
+                <p className="text-gray-600 border-b pb-2">
+                  <strong>Owner:</strong>{" "}
                   {userInfo.userName || "Chưa đăng nhập"}
                 </p>
-                <p className="text-gray-600">
+
+                {/* 4. Display Major in read-only mode */}
+                {userInfo.major && (
+                  <p className="text-gray-600 border-b pb-2">
+                    <strong>Major/Specialty:</strong> {userInfo.major}
+                  </p>
+                )}
+
+                <p className="text-gray-600 border-b pb-2">
                   <strong>Wallet Address:</strong> {maskedAddress}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 border-b pb-2">
                   <strong>Email:</strong> {userInfo.email || "Chưa cập nhật"}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 border-b pb-2">
                   <strong>Phone Number:</strong>{" "}
                   {userInfo.phoneNumber || "Chưa cập nhật"}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 border-b pb-2">
+                  <strong>Gender:</strong>{" "}
+                  {genderMap[userInfo.gender] || userInfo.gender}
+                </p>
+                <p className="text-gray-600 border-b pb-2">
                   <strong>Balance:</strong> {balance || "Chưa cập nhật"}
                 </p>
-                <p className="text-gray-600">
+                <p className="text-gray-600 pb-2">
                   <strong>Amount of nonces:</strong> {nonce || "Chưa cập nhật"}
                 </p>
-                <div className="flex gap-3 ">
+                <div className="flex gap-3 pt-2">
                   <motion.button
                     onClick={() => setEditMode(true)}
-                    className="mt-6 bg-green-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
+                    className="bg-green-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full shadow-md"
+                    whileHover={{ scale: 1.02 }}
                   >
                     Edit Profile
                   </motion.button>
                   <motion.button
                     onClick={handleLogout}
-                    className="mt-6 bg-red-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-red-700 transition w-full"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
+                    className="bg-red-500 cursor-pointer text-white px-4 py-2 rounded-lg hover:bg-red-600 transition w-full shadow-md"
+                    whileHover={{ scale: 1.02 }}
                   >
                     Log Out
                   </motion.button>
                 </div>
                 <motion.button
                   onClick={() => navigate("/my-products")}
-                  className="mt-6 bg-blue-500 cursor-pointer text-white px-6 py-2.5 rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-all duration-200 ease-in-out w-full font-medium shadow-sm hover:shadow-md flex items-center justify-center gap-2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+                  className="mt-4 bg-blue-500 cursor-pointer text-white px-6 py-2.5 rounded-lg hover:bg-blue-600 active:bg-blue-700 transition-all duration-200 ease-in-out w-full font-medium shadow-md flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02 }}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-                    <line x1="3" y1="6" x2="21" y2="6"/>
-                    <path d="M16 10a4 4 0 0 1-8 0"/>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <path d="M16 10a4 4 0 0 1-8 0" />
                   </svg>
                   My Product
                 </motion.button>
