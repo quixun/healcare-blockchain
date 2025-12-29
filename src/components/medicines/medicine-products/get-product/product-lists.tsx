@@ -58,8 +58,6 @@ export default function ProductList() {
   const [soldOutMessage, setSoldOutMessage] = useState<string | null>(null);
 
   const handleCardClick = (product: Product) => {
-    console.log(product.owner);
-
     if (product.isSold) {
       setSoldOutMessage(
         "This product is out of stock, please choose another product."

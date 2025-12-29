@@ -147,7 +147,7 @@ const SharedRecordList = () => {
                         />
                         <button
                           onClick={() =>
-                            navigate(`/services/record/details/${rec.id}`)
+                            navigate(`/services/record/details/${rec.id}?type=shared`)
                           }
                           className="mt-4 px-3 py-1 cursor-pointer max-w-[40%] bg-blue-600 text-white text-sm mx-auto rounded hover:bg-blue-700 transition"
                         >

@@ -19,9 +19,11 @@ export type Record = {
     bloodPressure: string;
     heartRate: string;
     temperature: string;
+    diseaseGroup: string;
+    description: string;
   };
   remainingTime: string;
-  expiryTime: number; // ← raw expiry timestamp
+  expiryTime: number;
 };
 
 const useFetchSharedMedicalRecords = () => {
@@ -91,6 +93,8 @@ const useFetchSharedMedicalRecords = () => {
         bps,
         hrs,
         temps,
+        diseaseGroups,
+        descriptions,
         owners,
       ] = await mainC.getRecordsSharedWithMe(address);
 
@@ -115,6 +119,8 @@ const useFetchSharedMedicalRecords = () => {
               bloodPressure: bps[i] || "",
               heartRate: hrs[i] || "",
               temperature: temps[i] || "",
+              diseaseGroup: diseaseGroups[i] || "",
+              description: descriptions[i] || "",
             },
             expiryTime: expiry,
             remainingTime: formatRemainingTime(seconds),

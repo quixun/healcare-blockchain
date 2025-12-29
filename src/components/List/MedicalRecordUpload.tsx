@@ -12,6 +12,7 @@ import {
 import { motion } from "framer-motion";
 import { encryptFileContent } from "../../utils/encryption";
 import { toast } from "sonner";
+import { DISEASE_GROUPS } from "@/constant/major";
 
 const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
 
@@ -22,6 +23,8 @@ type MedicalRecordForm = {
   bloodPressure: string;
   heartRate: string;
   temperature: string;
+  diseaseGroup: string;
+  description: string;
 };
 
 const UploadInfoForm: React.FC = () => {
@@ -88,6 +91,8 @@ const UploadInfoForm: React.FC = () => {
         data.bloodPressure,
         data.heartRate,
         data.temperature,
+        data.diseaseGroup,
+        data.description,
         { gasLimit: 1000000 }
       );
 
@@ -174,6 +179,50 @@ const UploadInfoForm: React.FC = () => {
                   {renderField("bloodPressure", "Blood Pressure")}
                   {renderField("heartRate", "Heart Rate")}
                   {renderField("temperature", "Temperature")}
+                  <Controller
+                    name="diseaseGroup"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <div className="flex flex-col">
+                        <label className="mb-1 font-semibold">
+                          Specialty Required (Disease Group)
+                        </label>
+                        <select
+                          {...field}
+                          className="border p-2 rounded"
+                          required
+                        >
+                          <option value="">Select Category</option>
+                          {DISEASE_GROUPS.map((group) => (
+                            <option key={group} value={group}>
+                              {group}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  />
+
+                  {/* Description Textarea */}
+                  <Controller
+                    name="description"
+                    control={control}
+                    defaultValue=""
+                    render={({ field }) => (
+                      <div className="flex flex-col">
+                        <label className="mb-1 font-semibold">
+                          Detailed Description / Symptoms
+                        </label>
+                        <textarea
+                          {...field}
+                          className="border p-2 rounded h-32"
+                          placeholder="Describe the medical condition in detail..."
+                          required
+                        />
+                      </div>
+                    )}
+                  />
                 </div>
               </div>
             </div>

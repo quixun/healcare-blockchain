@@ -3,10 +3,12 @@ import PrivateRoute from "./PrivateRoute";
 import ScrollToTop from "../components/common/force-top";
 import AuthLayout from "./AuthLayout";
 import { publicRoutes } from "./routes";
+import ChatPage from "@/components/chat/AiChatPage";
 
 export default function Router() {
   return (
     <BrowserRouter>
+      <ChatPage />
       <ScrollToTop />
       <div className="min-h-screen flex flex-col">
         <Routes>

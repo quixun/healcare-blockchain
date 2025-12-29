@@ -1,5 +1,6 @@
-import { setDoc, doc, getDoc } from "firebase/firestore";
+import { setDoc, doc, getDoc, getDocs, collection } from "firebase/firestore";
 import { db } from "./firebase"; // Ensure this points to your initialized Firestore instance
+import { CAREER_GROUPS } from "@/constant/major";
 
 // Save user name by address
 export const saveUserName = async (
@@ -50,7 +51,9 @@ export interface UserInfo {
   dateOfBirth: string;
   gender: Gender;
   location: string;
-  occupation: string;
+
+  career: CAREER_GROUPS;
+  major?: string;
 }
 
 export enum Gender {
@@ -59,6 +62,9 @@ export enum Gender {
   OTHER = "other",
 }
 
+export interface UserWithAddress extends UserInfo {
+  address: string;
+}
 // Fetch user information by address
 export const getUserInfo = async (
   address: string
@@ -72,5 +78,27 @@ export const getUserInfo = async (
   } catch (error) {
     console.error("Error fetching user information: ", error);
     throw new Error("Failed to fetch user info.");
+  }
+};
+
+export const getAllUsers = async (): Promise<UserWithAddress[]> => {
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+
+    const users: UserWithAddress[] = querySnapshot.docs.map((doc) => {
+      // The document ID is the address
+      const address = doc.id;
+      const data = doc.data() as UserInfo;
+
+      return {
+        ...data,
+        address, // Include the address explicitly in the return object
+      };
+    });
+
+    return users;
+  } catch (error) {
+    console.error("Error fetching all users: ", error);
+    throw new Error("Failed to fetch all users.");
   }
 };

@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import LazyLoad from "../common/lazy-load";
 import GeneralSection from "./sections/general-section";
 import { motion } from "motion/react";
-import ChatPage from "../chat/AiChatPage";
 
 const AboutUsSection = lazy(() => import("./sections/about-us-section"));
 const FeaturesSection = lazy(() => import("./sections/services-section"));
@@ -13,7 +12,6 @@ const AppointmentSection = lazy(() => import("./sections/appointment-section"));
 const Home = () => {
   return (
     <>
-      <ChatPage />
       <div className="pt-5 pb-14 gap-2">
         <GeneralSection />
         <Suspense fallback={<div>Loading About...</div>}>

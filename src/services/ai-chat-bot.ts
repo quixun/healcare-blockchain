@@ -50,8 +50,7 @@ export const fetchAIResponse = async (userMessages: AIMessage[]) => {
       );
     }
 
-    const data = await response.json();
-    return data;
+    return await response.json();
   } catch (error) {
     console.error("Error fetching AI response:", error);
     return null;

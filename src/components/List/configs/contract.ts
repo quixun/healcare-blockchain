@@ -1,4 +1,4 @@
-export const contractAddress = "0x8edB9dE15Bb0f2c49fB0519472F4C09F559deD0f";
+export const contractAddress = "0x7bb6DCB76CeC48587e4ca4Bd6579eD705130656a";
 
 export const MEDICAL_RECORDS_ABI = [
   {
@@ -13,6 +13,8 @@ export const MEDICAL_RECORDS_ABI = [
       { internalType: "string[]", name: "bloodPressures", type: "string[]" },
       { internalType: "string[]", name: "heartRates", type: "string[]" },
       { internalType: "string[]", name: "temperatures", type: "string[]" },
+      { internalType: "string[]", name: "diseaseGroup", type: "string[]" },
+      { internalType: "string[]", name: "description", type: "string[]" },
       { internalType: "address[]", name: "owners", type: "address[]" },
     ],
     stateMutability: "view",
@@ -33,6 +35,8 @@ export const MEDICAL_ALL_RECORDS_ABI = [
       { internalType: "string[]", name: "bloodPressures", type: "string[]" },
       { internalType: "string[]", name: "heartRates", type: "string[]" },
       { internalType: "string[]", name: "temperatures", type: "string[]" },
+      { internalType: "string[]", name: "diseaseGroup", type: "string[]" },
+      { internalType: "string[]", name: "description", type: "string[]" },
       { internalType: "address[]", name: "owners", type: "address[]" },
     ],
     stateMutability: "view",
@@ -51,6 +55,8 @@ export const UPLOAD_MEDICAL_RECORDS_ABI = [
       { internalType: "string", name: "_bloodPressure", type: "string" },
       { internalType: "string", name: "_heartRate", type: "string" },
       { internalType: "string", name: "_temperature", type: "string" },
+      { internalType: "string", name: "_diseaseGroup", type: "string" },
+      { internalType: "string", name: "_description", type: "string" },
     ],
     name: "uploadRecord",
     outputs: [],
