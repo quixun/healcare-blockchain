@@ -1,4 +1,4 @@
-export const contractAddress = "0x7bb6DCB76CeC48587e4ca4Bd6579eD705130656a";
+export const contractAddress = "0x9377bE7B36E0E498FF3574c9Ec6A68105F9d510A";
 
 export const MEDICAL_RECORDS_ABI = [
   {
@@ -111,6 +111,55 @@ export const HISTORY_TRACKING_ABI = [
           { internalType: "uint256", name: "expiresAt", type: "uint256" },
         ],
         internalType: "struct MedicalRecords.AccessLog[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
+// ABI specifically for the Doctor to write data (Transaction)
+export const ADD_RECOMMENDATION_ABI = [
+  {
+    inputs: [
+      { internalType: "string", name: "recordId", type: "string" },
+      { internalType: "string", name: "diagnosis", type: "string" },
+      { internalType: "string[]", name: "medNames", type: "string[]" },
+      { internalType: "string[]", name: "medQuantities", type: "string[]" },
+      { internalType: "string[]", name: "medInstructions", type: "string[]" },
+    ],
+    name: "addRecommendation",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
+
+// ABI specifically for reading the data (View)
+export const GET_RECOMMENDATIONS_ABI = [
+  {
+    inputs: [{ internalType: "string", name: "recordId", type: "string" }],
+    name: "getRecommendations",
+    outputs: [
+      {
+        components: [
+          { internalType: "address", name: "doctor", type: "address" },
+          { internalType: "uint256", name: "timestamp", type: "uint256" },
+          { internalType: "string", name: "diagnosis", type: "string" },
+          {
+            components: [
+              { internalType: "string", name: "name", type: "string" },
+              { internalType: "string", name: "quantity", type: "string" },
+              { internalType: "string", name: "instructions", type: "string" },
+            ],
+            internalType: "struct MedicalRecords.Medicine[]",
+            name: "medicines",
+            type: "tuple[]",
+          },
+        ],
+        internalType: "struct MedicalRecords.Recommendation[]",
         name: "",
         type: "tuple[]",
       },

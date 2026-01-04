@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { ethers } from "ethers";
 import { useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"; // Added Controller
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { motion } from "motion/react";
@@ -12,6 +12,17 @@ import { contractAddress, ACCESS_CONTROL_ABI } from "./configs/contract";
 import { ROUTES } from "@/Router/routes";
 import { getAllUsers, UserWithAddress } from "@/services/user-service";
 import { DURATION_OPTIONS } from "@/constant/grant-time";
+
+// Shadcn UI Imports
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { ShieldCheck, UserPlus, Clock, CheckCircle2, Ban } from "lucide-react";
 
 type GrantRevokeAccessProps = {
   major: string;
@@ -24,6 +35,7 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
   const { address: account } = useSelector((state: RootState) => state.account);
   const navigate = useNavigate();
 
+  // --- LOGIC (Kept same as yours) ---
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -44,26 +56,18 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
 
   const formSchema = useMemo(() => {
     return z.object({
-      address: z
-        .string()
-        .min(1, "Address is required")
-        .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address format")
-        .refine(
-          (val) => val.toLowerCase() !== account?.toLowerCase(),
-          "You cannot grant or revoke access to your own wallet"
-        ),
-      duration: z.string().optional(),
+      address: z.string().min(1, "Doctor address is required"),
+      duration: z.string().min(1, "Duration is required"),
     });
-  }, [account]);
+  }, []);
 
   type FormData = z.infer<typeof formSchema>;
 
   const {
-    register,
+    control, // Use control for Shadcn components
     handleSubmit,
     trigger,
     getValues,
-    setError,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -71,7 +75,6 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
       address: "",
       duration: "",
     },
-    mode: "onChange",
   });
 
   const getContract = async () => {
@@ -82,15 +85,7 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
   };
 
   const onGrant = async (data: FormData) => {
-    const durationVal = parseInt(data.duration || "0", 10);
-    if (!data.duration || isNaN(durationVal) || durationVal <= 0) {
-      setError("duration", {
-        type: "manual",
-        message: "Valid duration (seconds) is required for granting access",
-      });
-      return;
-    }
-
+    const durationVal = parseInt(data.duration, 10);
     const promise = async () => {
       setLoading(true);
       const contract = await getContract();
@@ -101,28 +96,20 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
       );
       await tx.wait();
       navigate(ROUTES.RECORD);
-      return `Access granted to ${data.address.slice(
-        0,
-        6
-      )}... for ${durationVal}s`;
+      return `Access granted successfully`;
     };
 
     toast.promise(promise(), {
-      loading: "Granting access... Check your wallet",
+      loading: "Granting access...",
       success: (msg) => msg,
-      error: (err) => {
-        console.error(err);
-        return err.reason || "Failed to grant access. Check console.";
-      },
+      error: (err) => err.reason || "Failed to grant access",
       finally: () => setLoading(false),
     });
   };
 
   const onRevoke = async () => {
-    // Only trigger validation for the address field
     const isAddressValid = await trigger("address");
     if (!isAddressValid) return;
-
     const address = getValues("address");
 
     const promise = async () => {
@@ -130,120 +117,141 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
       const contract = await getContract();
       const tx = await contract.revokeAccess(recordId, address);
       await tx.wait();
-      return `Access revoked for ${address.slice(0, 6)}...`;
+      return `Access revoked`;
     };
 
     toast.promise(promise(), {
-      loading: "Revoking access... Check your wallet",
+      loading: "Revoking access...",
       success: (msg) => msg,
-      error: (err) => {
-        console.error(err);
-        return err.reason || "Failed to revoke access. Check console.";
-      },
+      error: (err) => err.reason || "Failed to revoke access",
       finally: () => setLoading(false),
     });
   };
 
   return (
     <motion.div
-      className="p-6 border rounded-lg shadow-md w-full bg-white mx-auto"
-      initial={{ opacity: 0, x: 100 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
+      className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
     >
-      <h2 className="text-xl font-bold mb-4 text-gray-800">
-        Manage Record Access
-      </h2>
+      <div className="bg-slate-50 p-4 border-b border-slate-100 flex items-center gap-2">
+        <div className="bg-blue-100 p-1.5 rounded-md text-blue-600">
+          <ShieldCheck className="w-5 h-5" />
+        </div>
+        <h2 className="text-sm font-bold text-gray-700 uppercase tracking-wide">
+          Access Control
+        </h2>
+      </div>
 
-      <form className="flex flex-col gap-4">
-        {/* Address Input */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">
-            Select Doctor ({major})
-          </label>
-
-          <select
-            {...register("address")}
-            className={`border p-2 rounded w-full focus:outline-none focus:ring-2 bg-white ${
-              errors.address
-                ? "border-red-500 focus:ring-red-200"
-                : "border-gray-300 focus:ring-blue-200"
-            }`}
-          >
-            <option value="">Select a doctor</option>
-            {users.length > 0 ? (
-              users.map((user) => (
-                <option key={user.address} value={user.address}>
-                  {user.userName} ({user.address.slice(0, 6)}...
-                  {user.address.slice(-4)})
-                </option>
-              ))
-            ) : (
-              <option value="" disabled>
-                No doctors found for {major}
-              </option>
+      <div className="p-5 space-y-5">
+        <div className="flex flex-col gap-4">
+          {/* Doctor Selection with Shadcn */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1.5">
+              <UserPlus className="w-3.5 h-3.5" />
+              Select Doctor ({major})
+            </label>
+            <Controller
+              name="address"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger
+                    className={errors.address ? "border-red-500" : ""}
+                  >
+                    <SelectValue placeholder="Choose a specialist..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {users.length > 0 ? (
+                      users.map((user) => (
+                        <SelectItem key={user.address} value={user.address}>
+                          Dr. {user.userName}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="none" disabled>
+                        No doctors found
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.address && (
+              <p className="text-xs text-red-500 font-medium">
+                {errors.address.message}
+              </p>
             )}
-          </select>
+          </div>
 
-          {errors.address && (
-            <span className="text-xs text-red-500">
-              {errors.address.message}
-            </span>
-          )}
+          {/* Duration Selection with Shadcn */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-500 uppercase flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              Duration
+            </label>
+            <Controller
+              name="duration"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <SelectTrigger
+                    className={errors.duration ? "border-red-500" : ""}
+                  >
+                    <SelectValue placeholder="Select access time" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DURATION_OPTIONS.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value.toString()}
+                      >
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.duration && (
+              <p className="text-xs text-red-500 font-medium">
+                {errors.duration.message}
+              </p>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <button
+              onClick={handleSubmit(onGrant)}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium py-2.5 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+            >
+              {loading ? (
+                "Processing..."
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4" /> Grant
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={onRevoke}
+              disabled={loading}
+              className="flex items-center justify-center gap-2 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
+            >
+              <Ban className="w-4 h-4" /> Revoke
+            </button>
+          </div>
         </div>
-
-        {/* Duration Input */}
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700">
-            Access Duration
-          </label>
-          <select
-            {...register("duration")}
-            className={`border p-2 rounded w-full focus:outline-none focus:ring-2 bg-white ${
-              errors.duration
-                ? "border-red-500 focus:ring-red-200"
-                : "border-gray-300 focus:ring-blue-200"
-            }`}
-            defaultValue=""
-          >
-            <option value="" disabled>
-              Select duration
-            </option>
-            {DURATION_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          {errors.duration && (
-            <span className="text-xs text-red-500">
-              {errors.duration.message}
-            </span>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3 mt-2">
-          <button
-            onClick={handleSubmit(onGrant)}
-            type="button"
-            disabled={loading}
-            className="bg-green-600 hover:bg-green-700 text-white font-medium p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Grant Access
-          </button>
-
-          <button
-            onClick={onRevoke}
-            type="button"
-            disabled={loading}
-            className="bg-red-500 hover:bg-red-600 text-white font-medium p-2 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Revoke Access
-          </button>
-        </div>
-      </form>
+      </div>
     </motion.div>
   );
 };

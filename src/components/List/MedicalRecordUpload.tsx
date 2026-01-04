@@ -13,6 +13,7 @@ import { motion } from "framer-motion";
 import { encryptFileContent } from "../../utils/encryption";
 import { toast } from "sonner";
 import { DISEASE_GROUPS } from "@/constant/major";
+import { useNavigate } from "react-router-dom";
 
 const ipfs = create({ url: import.meta.env.VITE_IPFS_API_URL });
 
@@ -35,6 +36,7 @@ const UploadInfoForm: React.FC = () => {
   const [status, setStatus] = useState("");
   const { address } = useSelector((state: RootState) => state.account);
   const uploadInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setRecordId(uuidv4());
@@ -99,6 +101,7 @@ const UploadInfoForm: React.FC = () => {
       await tx.wait();
 
       toast.success("Medical record successfully uploaded!");
+      navigate(`/services/record/details/${recordId}`);
       reset();
       setFiles([]);
       setRecordId(uuidv4());
