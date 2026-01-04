@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/phanquixuan/Dev/workspace-for-react/healcare-block-chain/contracts/MedicalRecords.sol": {
-      "lastModificationDate": 1766648830647,
-      "contentHash": "b6e63be4690da5e07d12990c1e7d50f6",
+      "lastModificationDate": 1767534434563,
+      "contentHash": "9efa687a6af7a4eb7237a398e821923d",
       "sourceName": "contracts/MedicalRecords.sol",
       "solcConfig": {
         "version": "0.8.28",

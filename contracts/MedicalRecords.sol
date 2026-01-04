@@ -4,6 +4,17 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract MedicalRecords is Ownable {
+    struct Medicine {
+        string name; // e.g. "Paracetamol"
+        string quantity; // e.g. "10 tablets"
+        string instructions; // e.g. "Take 1 after meals"
+    }
+    struct Recommendation {
+        address doctor;
+        uint256 timestamp;
+        string diagnosis; // e.g., "Mild flu, needs rest"
+        Medicine[] medicines;
+    }
     struct AccessLog {
         address doctor;
         uint256 sharedAt; // When the user clicked "Grant"
@@ -26,6 +37,7 @@ contract MedicalRecords is Ownable {
         address owner;
         mapping(address => uint256) accessExpiry;
         AccessLog[] accessHistory;
+        Recommendation[] recommendations;
     }
 
     mapping(string => MedicalRecord) private records;
@@ -41,6 +53,11 @@ contract MedicalRecords is Ownable {
         string indexed recordId,
         address indexed doctor,
         uint256 revokedAt
+    );
+    event RecommendationAdded(
+        string indexed recordId,
+        address indexed doctor,
+        uint256 timestamp
     );
 
     constructor() Ownable(msg.sender) {}
@@ -285,5 +302,73 @@ contract MedicalRecords is Ownable {
             "Only owner can view history"
         );
         return records[recordId].accessHistory;
+    }
+
+    /// @notice Allows a doctor with active access to add a recommendation
+    function addRecommendation(
+        string memory recordId,
+        string memory diagnosis,
+        string[] memory medNames,
+        string[] memory medQuantities,
+        string[] memory medInstructions
+    ) external {
+        MedicalRecord storage rec = records[recordId];
+
+        require(rec.owner != address(0), "Record does not exist");
+
+        // FIX: Allow Owner OR Doctor with active access
+        bool isOwner = rec.owner == msg.sender;
+        bool isDoctorWithAccess = rec.accessExpiry[msg.sender] >
+            block.timestamp;
+
+        require(
+            isOwner || isDoctorWithAccess,
+            "Not authorized: Must be Owner or Doctor with active access"
+        );
+
+        require(
+            medNames.length == medQuantities.length &&
+                medNames.length == medInstructions.length,
+            "Medicine data mismatch"
+        );
+
+        Recommendation storage newRec = rec.recommendations.push();
+        newRec.doctor = msg.sender;
+        newRec.timestamp = block.timestamp;
+        newRec.diagnosis = diagnosis;
+        // Note: We removed newRec.medication, so we don't need to set it.
+
+        for (uint i = 0; i < medNames.length; i++) {
+            newRec.medicines.push(
+                Medicine({
+                    name: medNames[i],
+                    quantity: medQuantities[i],
+                    instructions: medInstructions[i]
+                })
+            );
+        }
+
+        emit RecommendationAdded(recordId, msg.sender, block.timestamp);
+    }
+
+    /// @notice Get all recommendations for a specific record
+    /// @dev Can be called by the Patient (Owner) OR a Doctor with access
+    function getRecommendations(
+        string memory recordId
+    ) external view returns (Recommendation[] memory) {
+        MedicalRecord storage rec = records[recordId];
+        require(rec.owner != address(0), "Record does not exist");
+
+        // Allow access if: Msg.sender is Owner OR Msg.sender is a Doctor with active access
+        bool isOwner = (rec.owner == msg.sender);
+        bool isDoctorWithAccess = (rec.accessExpiry[msg.sender] >
+            block.timestamp);
+
+        require(
+            isOwner || isDoctorWithAccess,
+            "Not authorized to view recommendations"
+        );
+
+        return rec.recommendations;
     }
 }

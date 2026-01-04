@@ -4,7 +4,7 @@ import { RootState } from "../../features/store";
 import Web3Service from "../../services/web3Service";
 import { useAppDispatch } from "../../features/hooks";
 import { updateAcount } from "../../features/account/accountSlice";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import AlertModal from "./AlertModal";
 import TransferStatusModal from "./TransferStatusModal";
 import ConfirmTransferModal from "./ConfirmTransferModal";
@@ -27,23 +27,20 @@ const Transfer: React.FC = () => {
 
   const handleSendClick = () => {
     if (!recipient) {
-      setAlertMessage("Please enter reciever address.");
+      setAlertMessage("Please enter receiver address.");
       setIsAlertModalOpen(true);
       return;
     }
-
     if (!amount) {
       setAlertMessage("Please enter amount of money.");
       setIsAlertModalOpen(true);
       return;
     }
-
     if (transferMessage === "") {
       setAlertMessage("Please enter transfer info.");
       setIsAlertModalOpen(true);
       return;
     }
-
     setIsConfirmModalOpen(true);
   };
 
@@ -60,13 +57,11 @@ const Transfer: React.FC = () => {
         setIsSuccess(false);
         return;
       }
-
       if (!web3.utils.isAddress(recipient)) {
         setMessage("Invalid recipient address.");
         setIsSuccess(false);
         return;
       }
-
       if (!/^\d*\.?\d+$/.test(amount) || parseFloat(amount) <= 0) {
         setMessage("Invalid amount of money.");
         setIsSuccess(false);
@@ -95,17 +90,14 @@ const Transfer: React.FC = () => {
         })
       );
 
-      setMessage("Transfer successfully");
+      setMessage("Transfer successful");
       setIsSuccess(true);
       setRecipient("");
       setAmount("");
       setTransferMessage("");
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setMessage("Transfer faild because: " + error.message);
-      } else {
-        setMessage("Transfer faild");
-      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      setMessage("Transfer failed: " + (error.message || "Unknown error"));
       setIsSuccess(false);
     } finally {
       setLoading(false);
@@ -113,109 +105,155 @@ const Transfer: React.FC = () => {
   };
 
   return (
-    <div className="my-10">
-      <div className="flex-1 flex justify-center items-center relative">
-        <motion.div
-          className="relative z-30 w-full max-w-lg h-full max-h-[950px] px-9 pt-16 rounded-lg"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h2 className="text-4xl font-bold text-black text-center mb-4">
-            Transfer Money
+    <div className="bg-gray-50 flex items-center justify-center p-4">
+      <motion.div
+        className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+            Send Crypto
           </h2>
-          {message && (
-            <motion.p
-              className="text-red-500 text-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
+          <p className="text-gray-500 text-sm mt-1">
+            Transfer ETH securely to any address
+          </p>
+        </div>
+
+        {/* Error Alert Box */}
+        <AnimatePresence>
+          {message && !isSuccess && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl text-center"
             >
               {message}
-            </motion.p>
+            </motion.div>
           )}
-          <motion.div
-            className="mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-          >
-            <label className="block font-medium text-black">
+        </AnimatePresence>
+
+        <div className="space-y-6">
+          {/* Recipient Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
               Recipient Address
             </label>
-            <input
-              type="text"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
-              className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
-            />
-          </motion.div>
-          <motion.div
-            className="mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.3 }}
-          >
-            <label className="block font-medium text-black">
-              Money (ETH):
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="0x..."
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
+              />
+            </div>
+          </div>
+
+          {/* Amount Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+              Amount (ETH)
             </label>
-            <input
-              type="text"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
-            />
-          </motion.div>
-          <motion.div
-            className="mb-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.3 }}
-          >
-            <label className="block font-medium text-black">
-              Transfer Information:
+            <div className="relative">
+              <input
+                type="number"
+                placeholder="0.00"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              />
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs bg-white px-2 py-1 rounded-md border border-gray-100 shadow-sm">
+                ETH
+              </div>
+            </div>
+          </div>
+
+          {/* Note Input */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
+              Note / Reference
             </label>
-            <input
-              type="text"
+            <textarea
+              rows={2}
+              placeholder="What's this for?"
               value={transferMessage}
               onChange={(e) => setTransferMessage(e.target.value)}
-              className="w-full border px-3 py-2 rounded-lg text-black focus:outline-none focus:ring-2 focus:ring-white"
+              className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
             />
-          </motion.div>
+          </div>
+
+          {/* Submit Button */}
           <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             onClick={handleSendClick}
             disabled={loading}
-            className="w-full ease-in-out duration-200 cursor-pointer bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.3 }}
+            className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-all 
+              ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-200"
+              }`}
           >
-            {loading ? "Đang gửi..." : "Gửi tiền"}
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Processing...
+              </span>
+            ) : (
+              "Confirm Transfer"
+            )}
           </motion.button>
+        </div>
 
-          <ConfirmTransferModal
-            isOpen={isConfirmModalOpen}
-            onClose={() => setIsConfirmModalOpen(false)}
-            onConfirm={handleConfirmSend}
-            recipient={recipient}
-            amount={amount}
-            transferMessage={transferMessage}
-          />
+        {/* Footer Info */}
+        <p className="mt-6 text-center text-xs text-gray-400">
+          Transaction fees (Gas) will be calculated by your wallet provider.
+        </p>
+      </motion.div>
 
-          <TransferStatusModal
-            isOpen={isStatusModalOpen}
-            onClose={() => setIsStatusModalOpen(false)}
-            isSuccess={isSuccess}
-            message={message}
-          />
-
-          <AlertModal
-            isOpen={isAlertModalOpen}
-            onClose={() => setIsAlertModalOpen(false)}
-            message={alertMessage}
-          />
-        </motion.div>
-      </div>
+      {/* Modals */}
+      <ConfirmTransferModal
+        isOpen={isConfirmModalOpen}
+        onClose={() => setIsConfirmModalOpen(false)}
+        onConfirm={handleConfirmSend}
+        recipient={recipient}
+        amount={amount}
+        transferMessage={transferMessage}
+      />
+      <TransferStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        isSuccess={isSuccess}
+        message={message}
+      />
+      <AlertModal
+        isOpen={isAlertModalOpen}
+        onClose={() => setIsAlertModalOpen(false)}
+        message={alertMessage}
+      />
     </div>
   );
 };

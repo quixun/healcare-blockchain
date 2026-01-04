@@ -16,6 +16,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@mui/material": "^7.0.2",
     "@openzeppelin/contracts": "^5.2.0",
+    "@radix-ui/react-select": "^2.2.6",
     "@reduxjs/toolkit": "^2.6.1",
     "@tailwindcss/vite": "^4.0.13",
     "class-variance-authority": "^0.7.1",
