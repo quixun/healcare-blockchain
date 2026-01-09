@@ -135,7 +135,7 @@ const AIChatScreen = ({
       <div className="overflow-y-auto scrollbar-hide flex-1 space-y-3 pt-0 border-b border-gray-200">
         <ChatMessages messages={messages} />
         <div ref={messagesEndRef} />
-        {loading && <p className="text-gray-500">AI is typing...</p>}
+        {loading && <p className="text-gray-500 pl-2">AI is typing...</p>}
       </div>
       {error && (
         <div className="p-2 text-red-500 text-sm flex items-center">

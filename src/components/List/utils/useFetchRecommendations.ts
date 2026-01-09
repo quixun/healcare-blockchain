@@ -28,7 +28,7 @@ const useFetchRecommendations = (recordId: string | undefined) => {
 
     try {
       setLoading(true);
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+      const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
       const signer = await provider.getSigner(address);
 
       const contract = new ethers.Contract(

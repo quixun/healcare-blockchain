@@ -21,6 +21,7 @@ type Product = {
   days?: number;
   isSoldOut?: boolean;
   isOnSale?: boolean;
+  quantity: number;
 };
 
 const UploadProduct: React.FC = () => {
@@ -40,6 +41,7 @@ const UploadProduct: React.FC = () => {
     days: undefined,
     isSoldOut: false,
     isOnSale: false,
+    quantity: 1,
   });
   const [errors, setErrors] = useState<{
     name?: string;
@@ -49,6 +51,7 @@ const UploadProduct: React.FC = () => {
     days?: string;
     image?: string;
     rating?: string;
+    quantity?: string;
   }>({});
   const [showReview, setShowReview] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -71,7 +74,9 @@ const UploadProduct: React.FC = () => {
     } else {
       setFormData((prev) => ({
         ...prev,
-        [name]: name === "price" || name === "days" ? Number(value) : value,
+        [name]: ["price", "days", "quantity"].includes(name)
+          ? Number(value)
+          : value,
       }));
     }
   };
@@ -95,6 +100,10 @@ const UploadProduct: React.FC = () => {
       newErrors.name = "Product name must be at least 3 characters";
     }
 
+    if (formData.quantity <= 0) {
+      newErrors.quantity = "Quantity must be at least 1";
+    }
+
     // Validate brand
     if (!formData.brand.trim()) {
       newErrors.brand = "Brand is required";
@@ -112,10 +121,6 @@ const UploadProduct: React.FC = () => {
       if (formData.oldPrice <= formData.price) {
         newErrors.oldPrice = "Old price must be greater than current price";
       }
-    }
-
-    // Validate days if on sale
-    if (formData.oldPrice !== undefined && formData.oldPrice > 0) {
       if (!formData.days || formData.days < 1) {
         newErrors.days = "Sale duration must be at least 1 day";
       }
@@ -175,6 +180,7 @@ const UploadProduct: React.FC = () => {
         Number(formData.rating || 0),
         formData.days || 0,
         formData.isOnSale,
+        formData.quantity,
         { gasLimit: 1000000 }
       );
 
@@ -196,11 +202,11 @@ const UploadProduct: React.FC = () => {
         days: undefined,
         isSoldOut: false,
         isOnSale: false,
+        quantity: 1,
       });
       setImageFile(null);
       setPreviewUrl("");
       setErrors({});
-
     } catch (error) {
       console.error("Error submitting product:", error);
       setShowSuccessModal(true);
@@ -363,6 +369,26 @@ const UploadProduct: React.FC = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.price}</p>
               )}
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Quantity *
+              </label>
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleInputChange}
+                required
+                min={1}
+                step={1}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.quantity ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.quantity && (
+                <p className="mt-1 text-sm text-red-600">{errors.quantity}</p>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -463,6 +489,13 @@ const UploadProduct: React.FC = () => {
                     <h4 className="font-medium text-gray-700">Old Price</h4>
                     <p className="text-gray-600">
                       ${formData.oldPrice.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h4 className="font-medium text-gray-700">Quantity</h4>
+                    <p className="text-gray-600">
+                      {formData.quantity}
                     </p>
                   </div>
 

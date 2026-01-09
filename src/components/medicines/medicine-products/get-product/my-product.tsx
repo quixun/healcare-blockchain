@@ -3,24 +3,9 @@ import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { RootState } from "@/features/store";
 import ProductDetailModal from "../../components/product-modal";
-import { useFetchProducts } from "./use-fetch-product";
+import { Product, useFetchProducts } from "./use-fetch-product";
 import { useNavigate } from "react-router-dom";
 import { SoldOutModal } from "../../medicine-list-sections/popular-medicine-section";
-
-type Product = {
-  id: number;
-  owner: string;
-  brand: string;
-  name: string;
-  imageCID: string;
-  currentPrice: string;
-  oldPrice: string;
-  rating: number;
-  createdAt: number;
-  daysOnSale: number;
-  isSold: boolean;
-  isOnSale: boolean;
-};
 
 const containerVariants = {
   hidden: {},
@@ -38,8 +23,7 @@ const calculateDaysRemaining = (
   const now = Math.floor(Date.now() / 1000);
   const saleEndsAt = createdAt + daysOnSale * 24 * 60 * 60;
   const remainingSeconds = Math.max(0, saleEndsAt - now);
-  const remainingDays = Math.ceil(remainingSeconds / (24 * 60 * 60));
-  return remainingDays;
+  return Math.ceil(remainingSeconds / (24 * 60 * 60));
 };
 
 const calculateDiscount = (currentPrice: string, oldPrice: string): number => {

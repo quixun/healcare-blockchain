@@ -1,48 +1,17 @@
-export const contractAddress = "0x9b5b39506E0a7Eb60D82CF0c42dc57D81506465E";
+export const contractAddress = "0x1750fB4e90D1C57569e419F5255EE868B9834D7D";
 
 export const ABI_UPLOAD_PRODUCT = [
   {
     inputs: [
-      {
-        internalType: "string",
-        name: "_name",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_imageCID",
-        type: "string",
-      },
-      {
-        internalType: "string",
-        name: "_brand",
-        type: "string",
-      },
-      {
-        internalType: "uint256",
-        name: "_currentPrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_oldPrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_rating",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "daysOnSale", // Updated parameter name
-        type: "uint256",
-      },
-      {
-        internalType: "bool",
-        name: "_isOnSale",
-        type: "bool",
-      },
+      { internalType: "string", name: "_name", type: "string" },
+      { internalType: "string", name: "_imageCID", type: "string" },
+      { internalType: "string", name: "_brand", type: "string" },
+      { internalType: "uint256", name: "_currentPrice", type: "uint256" },
+      { internalType: "uint256", name: "_oldPrice", type: "uint256" },
+      { internalType: "uint256", name: "_rating", type: "uint256" },
+      { internalType: "uint256", name: "daysOnSale", type: "uint256" },
+      { internalType: "bool", name: "_isOnSale", type: "bool" },
+      { internalType: "uint256", name: "_quantity", type: "uint256" },
     ],
     name: "uploadProduct",
     outputs: [],
@@ -62,18 +31,19 @@ export const ABI_GET_ALL_PRODUCTS = [
     ],
     name: "getProduct",
     outputs: [
-      { internalType: "uint256", name: "", type: "uint256" }, // product id
-      { internalType: "address", name: "", type: "address" }, // owner address
-      { internalType: "string", name: "", type: "string" }, // brand
-      { internalType: "string", name: "", type: "string" }, // name
-      { internalType: "string", name: "", type: "string" }, // imageCID
-      { internalType: "uint256", name: "", type: "uint256" }, // currentPrice
-      { internalType: "uint256", name: "", type: "uint256" }, // oldPrice
-      { internalType: "uint256", name: "", type: "uint256" }, // rating
-      { internalType: "uint256", name: "", type: "uint256" }, // rating
-      { internalType: "uint256", name: "", type: "uint256" }, // createdAt
-      { internalType: "bool", name: "", type: "bool" }, // isSold
-      { internalType: "bool", name: "", type: "bool" }, // isOnSale (this was missing before)
+      { internalType: "uint256", name: "id", type: "uint256" },
+      { internalType: "address", name: "owner", type: "address" },
+      { internalType: "string", name: "brand", type: "string" },
+      { internalType: "string", name: "name", type: "string" },
+      { internalType: "string", name: "imageCID", type: "string" },
+      { internalType: "uint256", name: "currentPrice", type: "uint256" },
+      { internalType: "uint256", name: "oldPrice", type: "uint256" },
+      { internalType: "uint256", name: "rating", type: "uint256" },
+      { internalType: "uint256", name: "daysOnSale", type: "uint256" },
+      { internalType: "uint256", name: "createdAt", type: "uint256" },
+      { internalType: "bool", name: "isSold", type: "bool" },
+      { internalType: "bool", name: "isOnSale", type: "bool" },
+      { internalType: "uint256", name: "quantity", type: "uint256" }, // Added quantity here
     ],
     stateMutability: "view",
     type: "function",
@@ -115,6 +85,7 @@ export const ABI_UPDATE_PRODUCT = [
       { internalType: "uint256", name: "_currentPrice", type: "uint256" },
       { internalType: "uint256", name: "_oldPrice", type: "uint256" },
       { internalType: "uint256", name: "_rating", type: "uint256" },
+      { internalType: "uint256", name: "_quantity", type: "uint256" }, // Added quantity here
     ],
     name: "updateProductInfo",
     outputs: [],

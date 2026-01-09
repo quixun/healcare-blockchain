@@ -17,6 +17,7 @@ export type DealItem = {
   days: number;
   isSoldOut?: boolean;
   isOnSale?: boolean;
+  quantity?: number;
 };
 
 interface DealsSectionProps {

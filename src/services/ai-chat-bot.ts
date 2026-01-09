@@ -9,7 +9,6 @@ STRICT RULES:
 
 export const fetchAIResponse = async (userMessages: AIMessage[]) => {
   try {
-    // FIX: Set a reasonable max_tokens limit (e.g., 1024) to prevent exceeding the affordable token count.
     const MAX_RESPONSE_TOKENS = 1024;
 
     const response = await fetch(
@@ -22,8 +21,6 @@ export const fetchAIResponse = async (userMessages: AIMessage[]) => {
           "HTTP-Referer": window.location.origin,
         },
         body: JSON.stringify({
-          // Note: Reverting to the previous model name or using a known free/cheap model.
-          // The model "openai/gpt-5.2-chat" is not a standard OpenAI model name.
           model: "meta-llama/llama-3.1-70b-instruct",
           max_tokens: MAX_RESPONSE_TOKENS,
           messages: [

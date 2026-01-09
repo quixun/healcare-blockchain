@@ -46,12 +46,14 @@ export default function ImageSlider({
         {total > 1 && hovered && (
           <>
             <button
+              type="button" // 👈 ADD THIS to prevent form submission
               onClick={prev}
               className="absolute top-1/2 left-0 -translate-y-1/2 bg-gray-700 text-white py-1 px-2 rounded-full"
             >
               ◀
             </button>
             <button
+              type="button" // 👈 ADD THIS to prevent form submission
               onClick={next}
               className="absolute top-1/2 right-0 -translate-y-1/2 bg-gray-700 text-white py-1 px-2 rounded-full"
             >

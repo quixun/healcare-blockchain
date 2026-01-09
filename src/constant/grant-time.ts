@@ -6,3 +6,5 @@ export const DURATION_OPTIONS = [
   { label: "1 Week", value: "604800" },
   { label: "1 Month", value: "2592000" },
 ];
+
+export const NGROK = "ELZPFD5O3WOXEJDXNWNAVYAILVRWAWZW"

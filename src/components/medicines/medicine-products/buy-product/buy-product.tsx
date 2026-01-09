@@ -8,6 +8,7 @@ import { ABI_BUY_PRODUCT, contractAddress } from "../config";
 import { updateAcount } from "@/features/account/accountSlice";
 import { useState } from "react";
 import { toast } from "sonner";
+
 export default function BuyProduct() {
   const { productID } = useParams();
   const { address } = useSelector((state: RootState) => state.account);
@@ -47,7 +48,6 @@ export default function BuyProduct() {
         ),
       });
 
-      // ✅ Update balance and nonce
       const balance = await web3.eth.getBalance(address);
       const nonce = await web3.eth.getTransactionCount(address);
       dispatch(

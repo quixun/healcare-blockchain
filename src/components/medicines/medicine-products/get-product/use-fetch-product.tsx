@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/features/store";
 import Web3Service from "@/services/web3Service";
 
-type Product = {
+export type Product = {
   id: number;
   owner: string;
   brand: string;
@@ -18,6 +18,7 @@ type Product = {
   daysOnSale: number;
   isSold: boolean;
   isOnSale: boolean;
+  quantity: number;
 };
 
 export const useFetchProducts = () => {
@@ -34,7 +35,7 @@ export const useFetchProducts = () => {
       setError(null);
 
       const web3 = Web3Service.getInstance().getWeb3();
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+      const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
       const signer = await provider.getSigner();
       const contract = new ethers.Contract(
         contractAddress,
@@ -62,6 +63,7 @@ export const useFetchProducts = () => {
           createdAt: Number(data[9]),
           isSold: data[10],
           isOnSale: data[11],
+          quantity: Number(data[12]),
         };
 
         fetchedProducts.push(formattedProduct);
