@@ -25,7 +25,7 @@ const ViewRecordIfAccessGranted = ({
 
   const getContract = useCallback(async () => {
     if (!userAddress) return null;
-    const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+    const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
     const signer = await provider.getSigner(userAddress);
     return new ethers.Contract(userAddress, ACCESS_CONTROL_ABI, signer);
   }, [userAddress]);

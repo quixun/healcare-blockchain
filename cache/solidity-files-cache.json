@@ -117,8 +117,8 @@
       ]
     },
     "/Users/phanquixuan/Dev/workspace-for-react/healcare-block-chain/contracts/ProductMarketplace.sol": {
-      "lastModificationDate": 1746670791174,
-      "contentHash": "b3f05ba8344639935abaac2c2877ee4d",
+      "lastModificationDate": 1767891511058,
+      "contentHash": "230ba4984aad46d3da184ae780e71693",
       "sourceName": "contracts/ProductMarketplace.sol",
       "solcConfig": {
         "version": "0.8.28",

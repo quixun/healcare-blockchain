@@ -51,7 +51,7 @@ const useFetchAllHistory = () => {
       setLoading(true);
       setError(null);
 
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+      const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
       const signer = await provider.getSigner(address);
 
       const combinedABI = [...MEDICAL_ALL_RECORDS_ABI, ...HISTORY_TRACKING_ABI];

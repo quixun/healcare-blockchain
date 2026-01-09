@@ -79,7 +79,7 @@ const GrantRevokeAccess = ({ recordId, major }: GrantRevokeAccessProps) => {
 
   const getContract = async () => {
     if (!account) throw new Error("Wallet not connected");
-    const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+    const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
     const signer = await provider.getSigner(account);
     return new ethers.Contract(contractAddress, ACCESS_CONTROL_ABI, signer);
   };

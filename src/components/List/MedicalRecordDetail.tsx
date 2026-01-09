@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import useFetchAllRecords from "./utils/useFetchAllRecords";
 import { fetchAndDecryptFiles } from "@/utils/encryption";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import ImageSlider from "./components/image-slider";
 import GrantRevokeAccess from "./GrantRevokeAccess";
 import useFetchSharedMedicalRecords from "./utils/useFetchSharedMedicalRecords";
@@ -23,6 +23,7 @@ import { getAllUsers, UserWithAddress } from "@/services/user-service";
 import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import { RootState } from "@/features/store";
+import { ROUTES } from "@/Router/routes";
 
 type MedicineInput = {
   name: string;
@@ -34,6 +35,7 @@ export const RecordDetail = () => {
   const { recordID } = useParams();
   const [searchParams] = useSearchParams();
   const query = searchParams.get("type");
+  const navigate = useNavigate();
 
   const { records: allRecords } = useFetchAllRecords();
   const { records: sharedRecords } = useFetchSharedMedicalRecords();
@@ -150,6 +152,12 @@ export const RecordDetail = () => {
     }
   };
 
+  const handleTipDoctor = (doctorAddress: string) => {
+    // Encode the address to Base64 to safely pass in URL
+    const encodedAddress = btoa(doctorAddress);
+    navigate(`${ROUTES.TRANSFER}?to=${encodedAddress}&ref=DoctorTip`);
+  };
+
   return (
     <div className="flex gap-10 justify-center w-full">
       <Card className="p-4 rounded-2xl mb-10 shadow-md w-full max-w-xl mt-2">
@@ -256,11 +264,20 @@ export const RecordDetail = () => {
                 >
                   {/* Header: Doctor & Date */}
                   <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-200">
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">
-                      {getDoctorName(rec.doctor) === "You"
-                        ? "You"
-                        : `Dr. ${getDoctorName(rec.doctor)}`}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-gray-500 uppercase">
+                        Dr. {getDoctorName(rec.doctor)}
+                      </span>
+                      {/* TIP BUTTON */}
+                      {getDoctorName(rec.doctor) !== "You" && (
+                        <button
+                          onClick={() => handleTipDoctor(rec.doctor)}
+                          className="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-md hover:bg-green-200 transition-colors cursor-pointer"
+                        >
+                          Send Tip
+                        </button>
+                      )}
+                    </div>
                     <span className="text-xs text-gray-400">
                       {new Date(rec.timestamp * 1000).toLocaleDateString()}
                     </span>

@@ -42,7 +42,7 @@ const useFetchSharedMedicalRecords = () => {
 
   const getContract = useCallback(async () => {
     if (!address) return null;
-    const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+    const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
     const signer = await provider.getSigner(address);
     return new ethers.Contract(contractAddress, ACCESS_CONTROL_ABI, signer);
   }, [address]);
@@ -70,7 +70,7 @@ const useFetchSharedMedicalRecords = () => {
 
     try {
       setLoading(true);
-      const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+      const provider = new ethers.JsonRpcProvider(import.meta.env.VITE_PUBLIC_GARNACHO_RPC_URL);
       const signer = await provider.getSigner(address);
       const mainC = new ethers.Contract(
         contractAddress,

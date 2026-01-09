@@ -15,6 +15,7 @@ export default function UpdateProduct() {
     currentPrice: "",
     oldPrice: "",
     rating: 0,
+    quantity: 0,
   });
 
   const [file, setFile] = useState<File | null>(null);
@@ -47,6 +48,7 @@ export default function UpdateProduct() {
           currentPrice: currentProduct.currentPrice,
           oldPrice: currentProduct.oldPrice,
           rating: currentProduct.rating,
+          quantity: currentProduct.quantity,
         });
         setExistingImageCID(currentProduct.imageCID);
       }
@@ -74,6 +76,7 @@ export default function UpdateProduct() {
       form.currentPrice,
       form.oldPrice,
       Number(form.rating),
+      Number(form.quantity),
       file || undefined
     );
 
@@ -85,6 +88,7 @@ export default function UpdateProduct() {
         currentPrice: form.currentPrice,
         oldPrice: form.oldPrice,
         rating: form.rating,
+        quantity: form.quantity,
       }));
 
       if (result.cid) {
@@ -186,6 +190,20 @@ export default function UpdateProduct() {
               value={form.oldPrice}
               onChange={handleChange}
               placeholder="Enter old price"
+              className="w-full px-4 py-2 border rounded"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">
+              Quantity
+            </label>
+            <input
+              type="number"
+              name="quantity"
+              value={form.quantity}
+              onChange={handleChange}
+              placeholder="Enter quantity"
               className="w-full px-4 py-2 border rounded"
             />
           </div>

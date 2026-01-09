@@ -15,6 +15,7 @@ contract Marketplace {
         uint createdAt;
         bool isSold;
         bool isOnSale;
+        uint quantity;
     }
 
     uint public productCount = 0;
@@ -31,10 +32,11 @@ contract Marketplace {
         uint rating,
         uint daysOnSale,
         bool isSold,
-        bool isOnSale
+        bool isOnSale,
+        uint quantity
     );
 
-    event ProductPurchased(uint id, address buyer);
+    event ProductPurchased(uint id, address buyer, uint remainingQuantity);
 
     event ProductUpdated(
         uint id,
@@ -43,7 +45,8 @@ contract Marketplace {
         string imageCID,
         uint currentPrice,
         uint oldPrice,
-        uint rating
+        uint rating,
+        uint quantity
     );
 
     function uploadProduct(
@@ -54,10 +57,12 @@ contract Marketplace {
         uint _oldPrice,
         uint _rating,
         uint daysOnSale,
-        bool _isOnSale
+        bool _isOnSale,
+        uint _quantity
     ) external {
         require(_currentPrice > 0, "Current price must be greater than zero");
         require(_rating <= 5, "Rating should be between 0 and 5");
+        require(_quantity > 0, "Quantity must be greater than zero");
 
         productCount++;
         products[productCount] = Product(
@@ -72,7 +77,8 @@ contract Marketplace {
             daysOnSale,
             block.timestamp,
             false,
-            _isOnSale
+            _isOnSale,
+            _quantity
         );
 
         emit ProductUploaded(
@@ -86,7 +92,8 @@ contract Marketplace {
             _rating,
             daysOnSale,
             false,
-            _isOnSale
+            _isOnSale,
+            _quantity
         );
     }
 
@@ -94,15 +101,21 @@ contract Marketplace {
         Product storage product = products[_id];
         require(!product.isSold, "Product already sold");
         require(msg.value == product.currentPrice, "Incorrect amount");
+        require(product.quantity > 0, "Product is out of stock");
         require(
             product.owner != msg.sender,
             "Owner cannot buy their own product"
         );
 
         product.owner.transfer(msg.value);
-        product.isSold = true;
 
-        emit ProductPurchased(_id, msg.sender);
+        product.quantity = product.quantity - 1;
+
+        if (product.quantity == 0) {
+            product.isSold = true;
+        }
+
+        emit ProductPurchased(_id, msg.sender, product.quantity);
     }
 
     function updateProductInfo(
@@ -112,7 +125,8 @@ contract Marketplace {
         string memory _imageCID,
         uint _currentPrice,
         uint _oldPrice,
-        uint _rating
+        uint _rating,
+        uint _quantity
     ) external {
         Product storage product = products[_id];
         require(
@@ -129,6 +143,11 @@ contract Marketplace {
         product.currentPrice = _currentPrice;
         product.oldPrice = _oldPrice;
         product.rating = _rating;
+        product.quantity = _quantity;
+
+        if (product.quantity > 0 && product.isSold) {
+            product.isSold = false;
+        }
 
         emit ProductUpdated(
             _id,
@@ -137,7 +156,8 @@ contract Marketplace {
             _imageCID,
             _currentPrice,
             _oldPrice,
-            _rating
+            _rating,
+            _quantity
         );
     }
 
@@ -158,7 +178,8 @@ contract Marketplace {
             uint,
             uint,
             bool,
-            bool
+            bool,
+            uint
         )
     {
         Product memory product = products[_id];
@@ -174,7 +195,8 @@ contract Marketplace {
             product.daysOnSale,
             product.createdAt,
             product.isSold,
-            product.isOnSale
+            product.isOnSale,
+            product.quantity
         );
     }
 }

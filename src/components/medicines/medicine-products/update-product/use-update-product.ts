@@ -19,6 +19,7 @@ export function useUpdateProduct(account: string | null) {
     currentPriceEth: string,
     oldPriceEth: string,
     rating: number,
+    quantity: number,
     file?: File
   ) => {
     if (
@@ -27,7 +28,8 @@ export function useUpdateProduct(account: string | null) {
       !name ||
       !currentPriceEth ||
       rating < 0 ||
-      rating > 5
+      rating > 5 ||
+      quantity < 0
     ) {
       setError("Missing or invalid fields");
       return { success: false };
@@ -60,7 +62,8 @@ export function useUpdateProduct(account: string | null) {
           imageCID,
           currentPriceWei,
           oldPriceWei,
-          rating
+          rating,
+          quantity
         )
         .send({ from: account, gas: "1000000" });
 

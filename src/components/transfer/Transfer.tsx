@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../features/store";
 import Web3Service from "../../services/web3Service";
@@ -8,8 +8,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import AlertModal from "./AlertModal";
 import TransferStatusModal from "./TransferStatusModal";
 import ConfirmTransferModal from "./ConfirmTransferModal";
+import { useSearchParams } from "react-router-dom";
+import { TIP_PRESETS } from "@/constant/tip";
 
 const Transfer: React.FC = () => {
+  const [searchParams] = useSearchParams();
+  const isDoctorTip = searchParams.get("ref") === "DoctorTip"; // Condition check
+  
   const { address } = useSelector((state: RootState) => state.account);
   const dispatch = useAppDispatch();
   const [recipient, setRecipient] = useState("");
@@ -17,6 +22,8 @@ const Transfer: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [transferMessage, setTransferMessage] = useState("");
+  const [activePreset, setActivePreset] = useState<string | null>(null); // State for preset selection
+
   const web3 = Web3Service.getInstance().getWeb3();
 
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -24,6 +31,36 @@ const Transfer: React.FC = () => {
   const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    const encodedTo = searchParams.get("to");
+    const reference = searchParams.get("ref");
+
+    if (encodedTo) {
+      try {
+        const decodedAddress = atob(encodedTo);
+        setRecipient(decodedAddress);
+
+        if (reference === "DoctorTip") {
+          setTransferMessage("Medical Consultation Tip - Thank you!");
+        }
+      } catch (e) {
+        console.error("Failed to decode recipient address", e);
+      }
+    }
+  }, [searchParams]);
+
+  const handlePresetClick = (val: string) => {
+    setAmount(val);
+    setActivePreset(val);
+  };
+
+  const handleManualAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAmount(e.target.value);
+    setActivePreset(null); 
+  };
+
+  // ... handleSendClick, handleConfirmSend, and handleTransfer remain the same as your provided code
 
   const handleSendClick = () => {
     if (!recipient) {
@@ -95,7 +132,7 @@ const Transfer: React.FC = () => {
       setRecipient("");
       setAmount("");
       setTransferMessage("");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setMessage("Transfer failed: " + (error.message || "Unknown error"));
       setIsSuccess(false);
@@ -112,17 +149,15 @@ const Transfer: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Header */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-            Send Crypto
+            {isDoctorTip ? "Send a Tip" : "Send Crypto"}
           </h2>
           <p className="text-gray-500 text-sm mt-1">
-            Transfer ETH securely to any address
+            {isDoctorTip ? "Show appreciation for your doctor" : "Transfer ETH securely to any address"}
           </p>
         </div>
 
-        {/* Error Alert Box */}
         <AnimatePresence>
           {message && !isSuccess && (
             <motion.div
@@ -142,29 +177,49 @@ const Transfer: React.FC = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
               Recipient Address
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="0x..."
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all placeholder:text-gray-400"
-              />
-            </div>
+            <input
+              type="text"
+              placeholder="0x..."
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+            />
           </div>
 
-          {/* Amount Input */}
+          {/* Amount Input with Conditional Presets */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2 ml-1">
               Amount (ETH)
             </label>
+            
+            {/* ONLY SHOW PRESETS IF IT IS A DOCTOR TIP */}
+            {isDoctorTip && (
+              <div className="flex gap-2 mb-3">
+                {TIP_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => handlePresetClick(preset.value)}
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
+                      activePreset === preset.value
+                        ? "bg-blue-600 border-blue-600 text-white"
+                        : "bg-white border-gray-200 text-gray-600 hover:bg-blue-50"
+                    }`}
+                  >
+                    {preset.value}
+                    <span className="block text-[9px] font-normal opacity-80">{preset.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+
             <div className="relative">
               <input
                 type="number"
                 placeholder="0.00"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                onChange={handleManualAmountChange}
+                className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 font-medium focus:ring-2 focus:ring-blue-500 outline-none transition-all"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs bg-white px-2 py-1 rounded-md border border-gray-100 shadow-sm">
                 ETH
@@ -182,59 +237,24 @@ const Transfer: React.FC = () => {
               placeholder="What's this for?"
               value={transferMessage}
               onChange={(e) => setTransferMessage(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none"
+              className="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-2xl text-gray-900 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
             />
           </div>
 
-          {/* Submit Button */}
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleSendClick}
             disabled={loading}
             className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-all 
-              ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-blue-200"
-              }`}
+              ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-gradient-to-r from-blue-600 to-indigo-600 shadow-blue-200"}`}
           >
-            {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                Processing...
-              </span>
-            ) : (
-              "Confirm Transfer"
-            )}
+            {loading ? "Processing..." : isDoctorTip ? "Confirm Tip" : "Confirm Transfer"}
           </motion.button>
         </div>
-
-        {/* Footer Info */}
-        <p className="mt-6 text-center text-xs text-gray-400">
-          Transaction fees (Gas) will be calculated by your wallet provider.
-        </p>
       </motion.div>
 
-      {/* Modals */}
+      {/* Modals remain the same */}
       <ConfirmTransferModal
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}

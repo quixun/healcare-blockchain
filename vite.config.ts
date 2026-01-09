@@ -11,4 +11,10 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+  server: {
+    // This allows ngrok to tunnel into Vite
+    allowedHosts: ["troy-coralliferous-marlin.ngrok-free.dev"],
+    // Optional: If you want to allow ANY ngrok URL, use this instead:
+    // allowedHosts: true
+  },
 });
